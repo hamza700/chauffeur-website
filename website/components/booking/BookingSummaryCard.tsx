@@ -1,7 +1,8 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { CreditCard } from "lucide-react";
+import { CreditCard, MapPin, Calendar, Clock, Users, Briefcase } from "lucide-react";
+import { motion } from 'framer-motion';
 
 interface BookingSummaryCardProps {
   bookingData: {
@@ -30,7 +31,6 @@ interface BookingSummaryCardProps {
 const BookingSummaryCard: React.FC<BookingSummaryCardProps> = ({ bookingData }) => {
   const { customerDetails, paymentDetails, initialBookingDetails } = bookingData;
 
-  // Function to format date consistently on both server and client
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
@@ -38,101 +38,106 @@ const BookingSummaryCard: React.FC<BookingSummaryCardProps> = ({ bookingData }) 
   };
 
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="bg-muted/50">
-        <CardTitle className="text-lg">Booking Summary</CardTitle>
-      </CardHeader>
-      <CardContent className="p-6 text-sm">
-        <div className="grid gap-3">
-          <div className="font-semibold">Booking Details</div>
-          <ul className="grid gap-3">
-            <li className="flex items-center justify-between">
-              <span className="text-muted-foreground">Type</span>
-              <span>{initialBookingDetails?.type || 'N/A'}</span>
-            </li>
-            <li className="flex items-center justify-between">
-              <span className="text-muted-foreground">Pickup</span>
-              <span>{initialBookingDetails?.pickupLocation || 'N/A'}</span>
-            </li>
-            {initialBookingDetails?.type === 'oneWay' && (
-              <li className="flex items-center justify-between">
-                <span className="text-muted-foreground">Dropoff</span>
-                <span>{initialBookingDetails.dropoffLocation || 'N/A'}</span>
-              </li>
-            )}
-            {initialBookingDetails?.type === 'hourly' && (
-              <li className="flex items-center justify-between">
-                <span className="text-muted-foreground">Duration</span>
-                <span>{initialBookingDetails.duration ? `${initialBookingDetails.duration} hours` : 'N/A'}</span>
-              </li>
-            )}
-            <li className="flex items-center justify-between">
-              <span className="text-muted-foreground">Date</span>
-              <span>{formatDate(initialBookingDetails?.date || 'N/A')}</span>
-            </li>
-            <li className="flex items-center justify-between">
-              <span className="text-muted-foreground">Time</span>
-              <span>{initialBookingDetails?.time || 'N/A'}</span>
-            </li>
-          </ul>
-        </div>
-        <Separator className="my-4" />
-        <div className="grid gap-3">
-          <div className="font-semibold">Vehicle Information</div>
-          <div className="text-muted-foreground">{bookingData.vehicle || 'N/A'}</div>
-        </div>
-        <Separator className="my-4" />
-        <div className="grid gap-3">
-          <div className="font-semibold">Customer Information</div>
-          {customerDetails ? (
-            <dl className="grid gap-3">
-              <div className="flex items-center justify-between">
-                <dt className="text-muted-foreground">Customer</dt>
-                <dd>{customerDetails.firstName} {customerDetails.lastName}</dd>
-              </div>
-              <div className="flex items-center justify-between">
-                <dt className="text-muted-foreground">Email</dt>
-                <dd>
-                  <a href={`mailto:${customerDetails.email}`}>{customerDetails.email}</a>
-                </dd>
-              </div>
-              <div className="flex items-center justify-between">
-                <dt className="text-muted-foreground">Passengers</dt>
-                <dd>{customerDetails.passengers}</dd>
-              </div>
-              <div className="flex items-center justify-between">
-                <dt className="text-muted-foreground">Luggage</dt>
-                <dd>{customerDetails.luggage}</dd>
-              </div>
-            </dl>
-          ) : (
-            <div className="text-muted-foreground">No customer details available</div>
-          )}
-        </div>
-        <Separator className="my-4" />
-        <div className="grid gap-3">
-          <div className="font-semibold">Payment Information</div>
-          {paymentDetails && paymentDetails.cardNumber ? (
-            <dl className="grid gap-3">
-              <div className="flex items-center justify-between">
-                <dt className="flex items-center gap-1 text-muted-foreground">
-                  <CreditCard className="h-4 w-4" />
-                  Card
-                </dt>
-                <dd>**** **** **** {paymentDetails.cardNumber.slice(-4)}</dd>
-              </div>
-            </dl>
-          ) : (
-            <div className="text-muted-foreground">No payment details available</div>
-          )}
-        </div>
-      </CardContent>
-      <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
-        <div className="text-xs text-muted-foreground">
-          Updated <time dateTime={new Date().toISOString()}>{formatDate(new Date().toISOString())}</time>
-        </div>
-      </CardFooter>
-    </Card>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Card className="overflow-hidden shadow-lg">
+        <CardHeader className="bg-primary text-white">
+          <CardTitle className="text-xl">Booking Summary</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 text-sm">
+          <div className="space-y-6">
+            <div>
+              <h3 className="font-semibold text-lg mb-3">Booking Details</h3>
+              <ul className="space-y-3">
+                <li className="flex items-center justify-between">
+                  <span className="flex items-center text-gray-600"><MapPin className="w-4 h-4 mr-2" /> Type</span>
+                  <span className="font-medium">{initialBookingDetails?.type || 'N/A'}</span>
+                </li>
+                <li className="flex items-center justify-between">
+                  <span className="flex items-center text-gray-600"><MapPin className="w-4 h-4 mr-2" /> Pickup</span>
+                  <span className="font-medium">{initialBookingDetails?.pickupLocation || 'N/A'}</span>
+                </li>
+                {initialBookingDetails?.type === 'oneWay' && (
+                  <li className="flex items-center justify-between">
+                    <span className="flex items-center text-gray-600"><MapPin className="w-4 h-4 mr-2" /> Dropoff</span>
+                    <span className="font-medium">{initialBookingDetails.dropoffLocation || 'N/A'}</span>
+                  </li>
+                )}
+                {initialBookingDetails?.type === 'hourly' && (
+                  <li className="flex items-center justify-between">
+                    <span className="flex items-center text-gray-600"><Clock className="w-4 h-4 mr-2" /> Duration</span>
+                    <span className="font-medium">{initialBookingDetails.duration ? `${initialBookingDetails.duration} hours` : 'N/A'}</span>
+                  </li>
+                )}
+                <li className="flex items-center justify-between">
+                  <span className="flex items-center text-gray-600"><Calendar className="w-4 h-4 mr-2" /> Date</span>
+                  <span className="font-medium">{formatDate(initialBookingDetails?.date || 'N/A')}</span>
+                </li>
+                <li className="flex items-center justify-between">
+                  <span className="flex items-center text-gray-600"><Clock className="w-4 h-4 mr-2" /> Time</span>
+                  <span className="font-medium">{initialBookingDetails?.time || 'N/A'}</span>
+                </li>
+              </ul>
+            </div>
+            <Separator />
+            <div>
+              <h3 className="font-semibold text-lg mb-3">Vehicle Information</h3>
+              <p className="text-gray-600">{bookingData.vehicle || 'N/A'}</p>
+            </div>
+            <Separator />
+            <div>
+              <h3 className="font-semibold text-lg mb-3">Customer Information</h3>
+              {customerDetails ? (
+                <ul className="space-y-3">
+                  <li className="flex items-center justify-between">
+                    <span className="flex items-center text-gray-600"><Users className="w-4 h-4 mr-2" /> Customer</span>
+                    <span className="font-medium">{customerDetails.firstName} {customerDetails.lastName}</span>
+                  </li>
+                  <li className="flex items-center justify-between">
+                    <span className="flex items-center text-gray-600"><MapPin className="w-4 h-4 mr-2" /> Email</span>
+                    <a href={`mailto:${customerDetails.email}`} className="font-medium text-primary hover:underline">{customerDetails.email}</a>
+                  </li>
+                  <li className="flex items-center justify-between">
+                    <span className="flex items-center text-gray-600"><Users className="w-4 h-4 mr-2" /> Passengers</span>
+                    <span className="font-medium">{customerDetails.passengers}</span>
+                  </li>
+                  <li className="flex items-center justify-between">
+                    <span className="flex items-center text-gray-600"><Briefcase className="w-4 h-4 mr-2" /> Luggage</span>
+                    <span className="font-medium">{customerDetails.luggage}</span>
+                  </li>
+                </ul>
+              ) : (
+                <p className="text-gray-600">No customer details available</p>
+              )}
+            </div>
+            <Separator />
+            <div>
+              <h3 className="font-semibold text-lg mb-3">Payment Information</h3>
+              {paymentDetails && paymentDetails.cardNumber ? (
+                <ul className="space-y-3">
+                  <li className="flex items-center justify-between">
+                    <span className="flex items-center text-gray-600">
+                      <CreditCard className="w-4 h-4 mr-2" /> Card
+                    </span>
+                    <span className="font-medium">**** **** **** {paymentDetails.cardNumber.slice(-4)}</span>
+                  </li>
+                </ul>
+              ) : (
+                <p className="text-gray-600">No payment details available</p>
+              )}
+            </div>
+          </div>
+        </CardContent>
+        <CardFooter className="flex flex-row items-center border-t bg-gray-50 px-6 py-4">
+          <p className="text-xs text-gray-500">
+            Updated <time dateTime={new Date().toISOString()}>{formatDate(new Date().toISOString())}</time>
+          </p>
+        </CardFooter>
+      </Card>
+    </motion.div>
   );
 };
 
