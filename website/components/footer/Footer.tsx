@@ -37,7 +37,7 @@ const Footer: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <Image src="/logo-white.svg" alt="Chauffeur Platform Logo" width={180} height={60} className="mb-6" />
+            <Image src="/logo-white.png" alt="Chauffeur Platform Logo" width={180} height={60} className="mb-6" />
             <div className="flex space-x-4">
               {socialLinks.map((link, index) => (
                 <motion.a 
