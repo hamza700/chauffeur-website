@@ -3,7 +3,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ChevronDown } from 'lucide-react';
 import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import {
   NavigationMenu,
@@ -33,24 +33,25 @@ function Header() {
   const handleMouseLeave = useCallback(() => {
     timeoutRef.current = setTimeout(() => {
       setActiveMenu(null);
-    }, 100); // 100ms delay before closing
+    }, 100);
   }, []);
 
   return (
-    <header className="bg-white shadow-md relative z-50">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+    <header className="bg-white shadow-lg relative z-50">
+      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link href="/" className="flex items-center">
           <Image
             src="/logo.webp"
             alt="Chauffeur Platform Logo"
-            width={150}
-            height={50}
+            width={120}
+            height={40}
+            className="h-10 w-auto"
           />
         </Link>
 
         {/* Desktop Navigation */}
-        <NavigationMenu className="hidden md:flex">
-          <NavigationMenuList className="space-x-4">
+        <NavigationMenu className="hidden lg:flex">
+          <NavigationMenuList className="space-x-1">
             {navItems.map((item) => (
               <NavigationMenuItem key={item.label}>
                 {item.children ? (
@@ -59,27 +60,27 @@ function Header() {
                     onMouseEnter={() => handleMouseEnter(item.label)}
                     onMouseLeave={handleMouseLeave}
                   >
-                    <NavigationMenuTrigger>{item.label}</NavigationMenuTrigger>
+                    <NavigationMenuTrigger className="bg-transparent hover:bg-gray-100 text-gray-700 font-medium">
+                      {item.label}
+                    </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <div className="absolute top-0 left-0 w-full h-2 bg-transparent" />
-                      <ul className="w-[200px] p-4">
+                      <ul className="w-[220px] p-3 bg-white rounded-md shadow-lg">
                         {item.children.map((child) => (
                           <ListItem
                             key={child.label}
                             title={child.label}
                             href={child.href}
-                          >
-                            {child.label}
-                          </ListItem>
+                          />
                         ))}
                       </ul>
                     </NavigationMenuContent>
                   </div>
                 ) : (
                   <Link href={item.href} legacyBehavior passHref>
-                    <NavigationMenuLink
-                      className={navigationMenuTriggerStyle()}
-                    >
+                    <NavigationMenuLink className={cn(
+                      navigationMenuTriggerStyle(),
+                      "bg-transparent hover:bg-gray-100 text-gray-700 font-medium"
+                    )}>
                       {item.label}
                     </NavigationMenuLink>
                   </Link>
@@ -89,55 +90,62 @@ function Header() {
           </NavigationMenuList>
         </NavigationMenu>
 
-        <div className="hidden md:flex items-center space-x-4">
+        <div className="hidden lg:flex items-center space-x-4">
           <SignedIn>
             <Link
               href="/manage-bookings"
-              className="text-gray-700 hover:text-gray-900"
+              className="text-gray-700 hover:text-gray-900 font-medium"
             >
               Manage Bookings
             </Link>
-            <UserButton afterSignOutUrl="/" />
+            <UserButton 
+              afterSignOutUrl="/"
+              appearance={{
+                elements: {
+                  avatarBox: "h-10 w-10"
+                }
+              }}
+            />
           </SignedIn>
           <SignedOut>
             <SignInButton mode="modal">
-              <Button variant="outline">Sign In</Button>
+              <Button variant="default" className="bg-primary text-white hover:bg-primary/90">
+                Sign In
+              </Button>
             </SignInButton>
           </SignedOut>
         </div>
 
         {/* Mobile Menu Button */}
-        <Button variant="ghost" className="md:hidden" onClick={toggleMenu}>
+        <Button variant="ghost" className="lg:hidden p-2" onClick={toggleMenu}>
           {isMenuOpen ? (
-            <X className="h-6 w-6" />
+            <X className="h-6 w-6 text-gray-700" />
           ) : (
-            <Menu className="h-6 w-6" />
+            <Menu className="h-6 w-6 text-gray-700" />
           )}
         </Button>
       </div>
 
       {/* Mobile Navigation */}
       {isMenuOpen && (
-        <nav className="md:hidden bg-white px-4 py-2">
+        <nav className="lg:hidden bg-white px-4 py-3 border-t">
           {navItems.map((item) => (
             <div key={item.label} className="py-2">
               {item.children ? (
-                <NavigationMenu>
+                <NavigationMenu orientation="vertical">
                   <NavigationMenuList>
                     <NavigationMenuItem>
-                      <NavigationMenuTrigger>
+                      <NavigationMenuTrigger className="w-full justify-between">
                         {item.label}
                       </NavigationMenuTrigger>
                       <NavigationMenuContent>
-                        <ul className="grid w-[400px] gap-3 p-4">
+                        <ul className="w-full p-2 bg-gray-50 rounded-md">
                           {item.children.map((child) => (
                             <ListItem
                               key={child.label}
                               title={child.label}
                               href={child.href}
-                            >
-                              {child.label}
-                            </ListItem>
+                            />
                           ))}
                         </ul>
                       </NavigationMenuContent>
@@ -147,7 +155,7 @@ function Header() {
               ) : (
                 <Link
                   href={item.href}
-                  className="block text-gray-700 hover:text-gray-900"
+                  className="block py-2 text-gray-700 hover:text-gray-900 font-medium"
                 >
                   {item.label}
                 </Link>
@@ -157,15 +165,24 @@ function Header() {
           <SignedIn>
             <Link
               href="/manage-bookings"
-              className="block py-2 text-gray-700 hover:text-gray-900"
+              className="block py-2 text-gray-700 hover:text-gray-900 font-medium"
             >
               Manage Bookings
             </Link>
-            <UserButton afterSignOutUrl="/" />
+            <div className="py-2">
+              <UserButton 
+                afterSignOutUrl="/"
+                appearance={{
+                  elements: {
+                    avatarBox: "h-10 w-10"
+                  }
+                }}
+              />
+            </div>
           </SignedIn>
           <SignedOut>
             <SignInButton mode="modal">
-              <Button variant="outline" className="w-full mt-2">
+              <Button variant="default" className="w-full mt-2 bg-primary text-white hover:bg-primary/90">
                 Sign In
               </Button>
             </SignInButton>
@@ -181,12 +198,12 @@ const ListItem = React.forwardRef<
   React.ComponentPropsWithoutRef<'a'>
 >(({ className, title, children, ...props }, ref) => {
   return (
-    <li className="mb-2">
+    <li>
       <NavigationMenuLink asChild>
         <a
           ref={ref}
           className={cn(
-            'block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+            'block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900',
             className
           )}
           {...props}
