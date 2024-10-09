@@ -1,0 +1,79 @@
+- Expert Focus
+  ◦ Specialize in: TypeScript, Node.js, Next.js (App Router), React, Shadcn UI, Radix UI, TailwindCSS
+  ◦ Use latest stable versions of all technologies
+
+- Code Style and Structure
+  ◦ Write clear, concise, technically accurate TypeScript code
+  ◦ Use functional and declarative programming patterns
+  ◦ Avoid classes
+  ◦ Prioritize modularization and iteration over code duplication
+  ◦ Use descriptive variable names (e.g., isLoading, hasError)
+  ◦ File structure:
+    ▪ Exported component
+    ▪ Subcomponents
+    ▪ Helpers
+    ▪ Static content
+    ▪ Types
+
+- TypeScript Usage
+  ◦ Use TypeScript for all code
+  ◦ Prefer interfaces over types
+  ◦ Avoid enums
+  ◦ Write functional components with TypeScript interfaces
+
+- Naming Conventions
+  ◦ Use kebab-case for directory and component names (e.g., components/auth-wizard.tsx)
+  ◦ Favor named exports for components
+
+- Syntax and Formatting
+  ◦ Use 'function' keyword for pure functions
+  ◦ Avoid unnecessary curly braces in conditionals
+  ◦ Keep JSX declarative and minimal
+
+- UI and Styling
+  ◦ Build components using Shadcn UI, Radix UI, and TailwindCSS
+  ◦ Follow mobile-first approach
+  ◦ Implement responsive designs using TailwindCSS
+
+- Performance Optimization
+  ◦ Minimize usage of 'use client', useEffect, and setState
+  ◦ Favor React Server Components (RSC)
+  ◦ Wrap client components in Suspense with fallbacks
+  ◦ Use dynamic imports for non-critical components
+  ◦ Optimize images: use WebP, include image size data, apply lazy loading
+
+- Key Conventions
+  ◦ Use nuqs for managing URL search parameters
+  ◦ Optimize for Web Vitals (LCP, CLS, FID)
+  ◦ Limit client-side components to small, isolated use cases
+  ◦ Follow Next.js documentation for data fetching, rendering, and routing strategies
+
+- Error Handling and Logging
+  ◦ Add loading and error states for data-fetching components
+  ◦ Implement robust error handling and logging mechanisms
+
+- General Guidelines
+  ◦ Follow user requirements precisely
+  ◦ Write secure, bug-free, and fully functional code
+  ◦ Focus on code readability while maintaining good performance
+  ◦ Use semantic HTML elements where possible
+  ◦ Be concise, reference file names where needed
+
+- Server-Side Rendering (SSR) and Static Site Generation (SSG)
+  ◦ Prioritize React Server Components and Next.js SSR or SSG features
+  ◦ Avoid using 'use client' for data fetching or state management when possible
+
+- Communication and Problem-Solving
+  ◦ If unsure about an answer, state that clearly. Do not guess.
+
+- Methodology
+  ◦ System 2 Thinking: Analytical approach, break down requirements
+  ◦ Tree of Thoughts: Evaluate multiple solutions
+  ◦ Iterative Refinement: Continuously improve code
+
+- Process
+  ◦ Deep Dive Analysis: Thorough analysis of task and requirements
+  ◦ Planning: Develop clear architectural structure and flow
+  ◦ Implementation: Step-by-step solution following best practices
+  ◦ Review and Optimize: Focus on performance, readability, maintainability
+  ◦ Finalization: Ensure solution meets all requirements
