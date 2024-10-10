@@ -1,8 +1,8 @@
-'use client'
+'use client';
 
 import React from 'react';
 import Image from 'next/image';
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
@@ -14,8 +14,13 @@ interface ServiceCardProps {
   href: string;
 }
 
-const ServiceCard: React.FC<ServiceCardProps> = ({ title, description, imageSrc, href }) => (
-  <motion.div 
+const ServiceCard: React.FC<ServiceCardProps> = ({
+  title,
+  description,
+  imageSrc,
+  href,
+}) => (
+  <motion.div
     className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl"
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -45,24 +50,24 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ title, description, imageSrc,
 
 const services = [
   {
-    title: "Chauffeur Service",
-    description: "Experience luxury travel with our professional chauffeurs.",
-    imageSrc: "/images/chauffeur-service.jpeg",
-    href: "/services?type=chauffeur"
+    title: 'Chauffeur Service',
+    description: 'Experience luxury travel with our professional chauffeurs.',
+    imageSrc: '/images/chauffeur-service.jpeg',
+    href: '/services?type=chauffeur',
   },
   {
-    title: "Hourly Rates",
-    description: "Flexible hourly bookings for your convenience.",
-    imageSrc: "/images/hourly-rates.jpeg",
-    href: "/services?type=hourly"
-  }
+    title: 'Hourly Rates',
+    description: 'Flexible hourly bookings for your convenience.',
+    imageSrc: '/images/hourly-rates.jpeg',
+    href: '/services?type=hourly',
+  },
 ];
 
 const OurServices: React.FC = () => {
   return (
     <section className="py-24 bg-gradient-to-b from-gray-100 to-gray-200">
       <div className="container mx-auto px-4">
-        <motion.h2 
+        <motion.h2
           className="text-4xl font-bold text-center mb-16 text-gray-800"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

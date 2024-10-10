@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import React from 'react';
 import Image from 'next/image';
@@ -16,12 +16,12 @@ const HeroSection: React.FC = () => {
         objectFit="cover"
         quality={100}
         priority
-        className="scale-105"  // Slight zoom effect
+        className="scale-105" // Slight zoom effect
       />
-      
+
       {/* Overlay with gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
-      
+
       {/* Content */}
       <div className="relative z-10 h-full flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <motion.div
@@ -37,7 +37,7 @@ const HeroSection: React.FC = () => {
             Elevate your journey with our premium chauffeur service
           </p>
         </motion.div>
-        
+
         {/* Booking Component */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

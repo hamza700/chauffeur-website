@@ -10,11 +10,14 @@ export function useCarousel() {
     setActiveIndex(emblaApi.selectedScrollSnap());
   }, [emblaApi]);
 
-  const setActiveIndexHandler = useCallback((index: number) => {
-    if (!emblaApi) return;
-    emblaApi.scrollTo(index);
-    setActiveIndex(index);
-  }, [emblaApi]);
+  const setActiveIndexHandler = useCallback(
+    (index: number) => {
+      if (!emblaApi) return;
+      emblaApi.scrollTo(index);
+      setActiveIndex(index);
+    },
+    [emblaApi]
+  );
 
   return {
     carouselProps: {

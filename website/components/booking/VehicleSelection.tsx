@@ -1,9 +1,9 @@
 import React from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { Users, Briefcase, Award, Ban, Clock, Shield } from 'lucide-react';
 
 interface VehicleSelectionProps {
@@ -51,7 +51,7 @@ function VehicleSelection({ onNext }: VehicleSelectionProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: index * 0.1 }}
         >
-          <Card  className="overflow-hidden transition-all duration-300 ease-in-out hover:shadow-xl">
+          <Card className="overflow-hidden transition-all duration-300 ease-in-out hover:shadow-xl">
             <div className="grid grid-cols-1 md:grid-cols-3">
               <div className="col-span-1 md:col-span-2 relative">
                 <Image
@@ -65,32 +65,61 @@ function VehicleSelection({ onNext }: VehicleSelectionProps) {
                   {vehicle.name}
                 </div>
               </div>
-              <CardContent className="p-6 flex flex-col justify-between bg-gray-50">
-                <div>
-                  <h3 className="text-2xl font-bold mb-2 text-gray-800">{vehicle.name}</h3>
-                  <p className="text-sm text-gray-600 mb-4">{vehicle.description}</p>
-                  <div className="flex items-center space-x-4 mb-4 text-gray-700">
-                    <span className="flex items-center"><Users className="w-4 h-4 mr-1" /> {vehicle.capacity}</span>
-                    <span className="flex items-center"><Briefcase className="w-4 h-4 mr-1" /> {vehicle.luggage}</span>
+              <div className="bg-gray-50 flex flex-col">
+                <CardContent className="p-6 flex-grow">
+                  <div>
+                    <h3 className="text-2xl font-bold mb-2 text-gray-800">
+                      {vehicle.name}
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-4">
+                      {vehicle.description}
+                    </p>
+                    <div className="flex items-center space-x-4 mb-4 text-gray-700">
+                      <span className="flex items-center">
+                        <Users className="w-4 h-4 mr-1" /> {vehicle.capacity}
+                      </span>
+                      <span className="flex items-center">
+                        <Briefcase className="w-4 h-4 mr-1" /> {vehicle.luggage}
+                      </span>
+                    </div>
+                    <p className="text-3xl font-bold mb-2 text-primary">
+                      ${vehicle.price}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      All prices include VAT, fees & tip.
+                    </p>
                   </div>
-                  <p className="text-3xl font-bold mb-2 text-primary">${vehicle.price}</p>
-                  <p className="text-sm text-gray-600">All prices include VAT, fees & tip.</p>
+                </CardContent>
+                <div className="p-6 pt-0">
+                  <Button
+                    className="w-full bg-primary hover:bg-primary/90 text-white"
+                    onClick={() => onNext({ vehicle: vehicle.id })}
+                  >
+                    Select <span className="ml-2">→</span>
+                  </Button>
                 </div>
-                <Button 
-                  className="w-full mt-4 bg-primary hover:bg-primary/90 text-white" 
-                  onClick={() => onNext({ vehicle: vehicle.id })}
-                >
-                  Select <span className="ml-2">→</span>
-                </Button>
-              </CardContent>
+              </div>
             </div>
-            <Separator className="my-4" />
+            <Separator className="my-0" />
             <CardFooter className="px-6 py-4 flex flex-wrap gap-4 text-sm bg-gray-50">
-              <span className="flex items-center text-gray-700"><Award className="w-4 h-4 mr-2" /> Meet & Greet included</span>
-              <span className="flex items-center text-gray-700"><Ban className="w-4 h-4 mr-2" /> Free cancellation</span>
-              <span className="flex items-center text-gray-700"><Clock className="w-4 h-4 mr-2" /> Free Waiting time</span>
-              <span className="flex items-center text-gray-700"><Shield className="w-4 h-4 mr-2" /> Safe and secure travel</span>
-              <Button variant="link" className="p-0 text-primary hover:underline">Show more information</Button>
+              <span className="flex items-center text-gray-700">
+                <Award className="w-4 h-4 mr-2" /> Meet & Greet included
+              </span>
+              <span className="flex items-center text-gray-700">
+                <Ban className="w-4 h-4 mr-2" /> Free cancellation
+              </span>
+              <span className="flex items-center text-gray-700">
+                <Clock className="w-4 h-4 mr-2" /> Free Waiting time
+              </span>
+              <span className="flex items-center text-gray-700">
+                <Shield className="w-4 h-4 mr-2" /> Safe and secure travel
+              </span>
+              <Button
+                variant="link"
+                className="p-0 text-primary hover:underline"
+              >
+                Show more information
+              </Button>
             </CardFooter>
           </Card>
         </motion.div>

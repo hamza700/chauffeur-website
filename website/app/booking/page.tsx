@@ -34,7 +34,7 @@ export default function BookingPage() {
       time: searchParams.get('time'),
       duration: searchParams.get('duration'),
     };
-    setBookingData(prev => ({ ...prev, initialBookingDetails }));
+    setBookingData((prev) => ({ ...prev, initialBookingDetails }));
   }, [searchParams]);
 
   const handleNext = (data: any) => {
@@ -48,7 +48,7 @@ export default function BookingPage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <motion.h1 
+      <motion.h1
         className="text-4xl font-bold text-center mb-12 text-gray-800"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -56,22 +56,24 @@ export default function BookingPage() {
       >
         Complete Your Booking
       </motion.h1>
-      
+
       <div className="mb-12">
         <ol className="flex items-center justify-between w-full">
           {steps.map((step, index) => (
             <li key={index} className="flex flex-col items-center w-full">
-              <motion.div 
+              <motion.div
                 className={`flex items-center justify-center w-16 h-16 rounded-full ${
-                  index <= currentStep ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'
+                  index <= currentStep
+                    ? 'bg-primary text-white'
+                    : 'bg-gray-200 text-gray-600'
                 }`}
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
               >
-                {React.createElement(step.icon, { className: "w-8 h-8" })}
+                {React.createElement(step.icon, { className: 'w-8 h-8' })}
               </motion.div>
-              <motion.span 
+              <motion.span
                 className={`mt-2 text-sm font-medium ${
                   index <= currentStep ? 'text-primary' : 'text-gray-500'
                 }`}
@@ -82,9 +84,21 @@ export default function BookingPage() {
                 {step.label}
               </motion.span>
               {index < steps.length - 1 && (
-                <div className={`w-full h-1 mt-4 ${
-                  index < currentStep ? 'bg-primary' : 'bg-gray-200'
-                }`}></div>
+                <div className="w-full flex items-center mt-4">
+                  <div
+                    className={`flex-grow h-1 ${
+                      index <= currentStep ? 'bg-primary' : 'bg-gray-200'
+                    }`}
+                  ></div>
+                  <div className="w-2"></div>
+                </div>
+              )}
+              {index === steps.length - 1 && (
+                <div
+                  className={`w-full h-1 mt-4 ${
+                    index <= currentStep ? 'bg-primary' : 'bg-gray-200'
+                  }`}
+                ></div>
               )}
             </li>
           ))}
@@ -102,8 +116,12 @@ export default function BookingPage() {
               transition={{ duration: 0.5 }}
             >
               {currentStep === 0 && <VehicleSelection onNext={handleNext} />}
-              {currentStep === 1 && <CustomerDetails onNext={handleNext} onBack={handleBack} />}
-              {currentStep === 2 && <Payment onNext={handleNext} onBack={handleBack} />}
+              {currentStep === 1 && (
+                <CustomerDetails onNext={handleNext} onBack={handleBack} />
+              )}
+              {currentStep === 2 && (
+                <Payment onNext={handleNext} onBack={handleBack} />
+              )}
             </motion.div>
           </AnimatePresence>
         </div>

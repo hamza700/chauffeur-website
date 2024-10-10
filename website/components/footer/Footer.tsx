@@ -1,9 +1,17 @@
-'use client'
+'use client';
 
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from 'lucide-react';
+import {
+  Facebook,
+  Twitter,
+  Instagram,
+  Linkedin,
+  Mail,
+  Phone,
+  MapPin,
+} from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const socialLinks = [
@@ -31,20 +39,26 @@ const Footer: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Logo and Social Links */}
-          <motion.div 
+          <motion.div
             className="flex flex-col items-start"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <Image src="/logo-white.png" alt="Chauffeur Platform Logo" width={180} height={60} className="mb-6" />
+            <Image
+              src="/logo-white.png"
+              alt="Chauffeur Platform Logo"
+              width={180}
+              height={60}
+              className="mb-6"
+            />
             <div className="flex space-x-4">
               {socialLinks.map((link, index) => (
-                <motion.a 
-                  key={index} 
-                  href={link.href} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
+                <motion.a
+                  key={index}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-gray-400 hover:text-white transition-colors duration-300"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
@@ -65,7 +79,10 @@ const Footer: React.FC = () => {
             <ul className="space-y-3">
               {quickLinks.map((link, index) => (
                 <li key={index}>
-                  <Link href={link.href} className="text-gray-400 hover:text-white transition-colors duration-300">
+                  <Link
+                    href={link.href}
+                    className="text-gray-400 hover:text-white transition-colors duration-300"
+                  >
                     {link.label}
                   </Link>
                 </li>
@@ -83,7 +100,10 @@ const Footer: React.FC = () => {
             <ul className="space-y-3">
               {legalLinks.map((link, index) => (
                 <li key={index}>
-                  <Link href={link.href} className="text-gray-400 hover:text-white transition-colors duration-300">
+                  <Link
+                    href={link.href}
+                    className="text-gray-400 hover:text-white transition-colors duration-300"
+                  >
                     {link.label}
                   </Link>
                 </li>
@@ -101,28 +121,43 @@ const Footer: React.FC = () => {
             <ul className="space-y-4">
               <li className="flex items-center">
                 <Mail className="h-5 w-5 mr-3 text-white" />
-                <a href="mailto:info@chauffeurplatform.com" className="text-gray-400 hover:text-white transition-colors duration-300">info@chauffeurplatform.com</a>
+                <a
+                  href="mailto:info@chauffeurplatform.com"
+                  className="text-gray-400 hover:text-white transition-colors duration-300"
+                >
+                  info@chauffeurplatform.com
+                </a>
               </li>
               <li className="flex items-center">
                 <Phone className="h-5 w-5 mr-3 text-white" />
-                <a href="tel:+1234567890" className="text-gray-400 hover:text-white transition-colors duration-300">+1 (234) 567-890</a>
+                <a
+                  href="tel:+1234567890"
+                  className="text-gray-400 hover:text-white transition-colors duration-300"
+                >
+                  +1 (234) 567-890
+                </a>
               </li>
               <li className="flex items-start">
                 <MapPin className="h-5 w-5 mr-3 mt-1 text-white" />
-                <span className="text-gray-400">123 Luxury Drive, Cityville, ST 12345</span>
+                <span className="text-gray-400">
+                  123 Luxury Drive, Cityville, ST 12345
+                </span>
               </li>
             </ul>
           </motion.div>
         </div>
 
         {/* Copyright */}
-        <motion.div 
+        <motion.div
           className="mt-12 pt-8 border-t border-gray-800 text-center text-gray-400"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
-          <p>&copy; {new Date().getFullYear()} Chauffeur Platform. All rights reserved.</p>
+          <p>
+            &copy; {new Date().getFullYear()} Chauffeur Platform. All rights
+            reserved.
+          </p>
         </motion.div>
       </div>
     </footer>

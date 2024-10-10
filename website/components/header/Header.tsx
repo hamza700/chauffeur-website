@@ -77,10 +77,12 @@ function Header() {
                   </div>
                 ) : (
                   <Link href={item.href} legacyBehavior passHref>
-                    <NavigationMenuLink className={cn(
-                      navigationMenuTriggerStyle(),
-                      "bg-transparent hover:bg-gray-100 text-gray-700 font-medium"
-                    )}>
+                    <NavigationMenuLink
+                      className={cn(
+                        navigationMenuTriggerStyle(),
+                        'bg-transparent hover:bg-gray-100 text-gray-700 font-medium'
+                      )}
+                    >
                       {item.label}
                     </NavigationMenuLink>
                   </Link>
@@ -98,18 +100,21 @@ function Header() {
             >
               Manage Bookings
             </Link>
-            <UserButton 
+            <UserButton
               afterSignOutUrl="/"
               appearance={{
                 elements: {
-                  avatarBox: "h-10 w-10"
-                }
+                  avatarBox: 'h-10 w-10',
+                },
               }}
             />
           </SignedIn>
           <SignedOut>
             <SignInButton mode="modal">
-              <Button variant="default" className="bg-primary text-white hover:bg-primary/90">
+              <Button
+                variant="default"
+                className="bg-primary text-white hover:bg-primary/90"
+              >
                 Sign In
               </Button>
             </SignInButton>
@@ -170,19 +175,22 @@ function Header() {
               Manage Bookings
             </Link>
             <div className="py-2">
-              <UserButton 
+              <UserButton
                 afterSignOutUrl="/"
                 appearance={{
                   elements: {
-                    avatarBox: "h-10 w-10"
-                  }
+                    avatarBox: 'h-10 w-10',
+                  },
                 }}
               />
             </div>
           </SignedIn>
           <SignedOut>
             <SignInButton mode="modal">
-              <Button variant="default" className="w-full mt-2 bg-primary text-white hover:bg-primary/90">
+              <Button
+                variant="default"
+                className="w-full mt-2 bg-primary text-white hover:bg-primary/90"
+              >
                 Sign In
               </Button>
             </SignInButton>

@@ -12,7 +12,7 @@ import {
   CarouselPrevious,
   CarouselNext,
   type CarouselApi,
-} from "@/components/ui/carousel";
+} from '@/components/ui/carousel';
 
 interface Step {
   icon: React.ReactNode;
@@ -51,7 +51,7 @@ function HowItWorks() {
       return;
     }
 
-    api.on("select", () => {
+    api.on('select', () => {
       setActiveStep(api.selectedScrollSnap());
     });
   }, [api]);
@@ -64,7 +64,7 @@ function HowItWorks() {
   return (
     <section className="py-24 bg-gradient-to-b from-gray-50 to-white">
       <div className="container mx-auto px-4">
-        <motion.h2 
+        <motion.h2
           className="text-4xl font-bold text-center mb-16 text-gray-800"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -84,32 +84,38 @@ function HowItWorks() {
                 >
                   <button
                     className={cn(
-                      "flex items-center w-full p-6 rounded-xl transition-all duration-300 shadow-sm",
-                      activeStep === index 
-                        ? "bg-primary text-white" 
-                        : "bg-white hover:bg-gray-100"
+                      'flex items-center w-full p-6 rounded-xl transition-all duration-300 shadow-sm',
+                      activeStep === index
+                        ? 'bg-primary text-white'
+                        : 'bg-white hover:bg-gray-100'
                     )}
                     onClick={() => handleStepClick(index)}
                   >
                     <div className="mr-6">
                       {React.cloneElement(step.icon as React.ReactElement, {
                         className: cn(
-                          "w-10 h-10",
-                          activeStep === index ? "text-white" : "text-primary"
-                        )
+                          'w-10 h-10',
+                          activeStep === index ? 'text-white' : 'text-primary'
+                        ),
                       })}
                     </div>
                     <div className="text-left">
-                      <h3 className={cn(
-                        "text-xl font-semibold mb-2",
-                        activeStep === index ? "text-white" : "text-gray-800"
-                      )}>
+                      <h3
+                        className={cn(
+                          'text-xl font-semibold mb-2',
+                          activeStep === index ? 'text-white' : 'text-gray-800'
+                        )}
+                      >
                         {step.title}
                       </h3>
-                      <p className={cn(
-                        "text-sm",
-                        activeStep === index ? "text-white/90" : "text-gray-600"
-                      )}>
+                      <p
+                        className={cn(
+                          'text-sm',
+                          activeStep === index
+                            ? 'text-white/90'
+                            : 'text-gray-600'
+                        )}
+                      >
                         {step.description}
                       </p>
                     </div>
@@ -124,7 +130,7 @@ function HowItWorks() {
             </div>
           </div>
           <div className="lg:w-2/3 flex justify-center items-start">
-            <motion.div 
+            <motion.div
               className="w-full max-w-2xl"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -153,8 +159,10 @@ function HowItWorks() {
                   <button
                     key={index}
                     className={cn(
-                      "w-3 h-3 rounded-full mx-1 transition-all duration-300",
-                      activeStep === index ? "bg-primary scale-125" : "bg-gray-300"
+                      'w-3 h-3 rounded-full mx-1 transition-all duration-300',
+                      activeStep === index
+                        ? 'bg-primary scale-125'
+                        : 'bg-gray-300'
                     )}
                     onClick={() => handleStepClick(index)}
                   />
