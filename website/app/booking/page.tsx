@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import VehicleSelection from '@/components/booking/VehicleSelection';
@@ -16,6 +17,7 @@ const steps = [
 ];
 
 export default function BookingPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(0);
   const [bookingData, setBookingData] = useState({
@@ -39,11 +41,21 @@ export default function BookingPage() {
 
   const handleNext = (data: any) => {
     setBookingData((prev) => ({ ...prev, ...data }));
-    setCurrentStep((prev) => prev + 1);
+    if (currentStep < steps.length - 1) {
+      setCurrentStep((prev) => prev + 1);
+    } else {
+      // Generate booking reference and redirect to confirmation page
+      const bookingReference = generateBookingReference();
+      router.push(`/booking/confirmation?ref=${bookingReference}`);
+    }
   };
 
   const handleBack = () => {
     setCurrentStep((prev) => prev - 1);
+  };
+
+  const generateBookingReference = () => {
+    return 'BK' + Math.random().toString(36).substr(2, 8).toUpperCase();
   };
 
   return (
