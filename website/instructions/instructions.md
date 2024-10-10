@@ -385,6 +385,9 @@ website
   - **Features**:
     - List of key benefits.
     - Icons and images to enhance readability.
+  - **Information with images**:
+    - Text with title on one side and image on the other
+    - Have two of them but the images and texts inverted sides for the second one
   - **Pricing Information**:
     - Transparent pricing details.
     - Any special offers or packages.
@@ -393,6 +396,8 @@ website
   - **Call to Action**:
     - Encouragement to book now.
     - Contact information for inquiries.
+  - **FaQs**:
+    - FaQs relaetd to teh servcie in accordions.
 - **Design Elements**:
   - Consistent styling with the rest of the website.
   - Use of cards, sections, and grids to organize content.
