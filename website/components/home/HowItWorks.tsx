@@ -136,7 +136,7 @@ function HowItWorks() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6 }}
             >
-              <Carousel setApi={setApi} className="w-full">
+              <Carousel setApi={setApi} className="w-full" opts={{ loop: true }}>
                 <CarouselContent>
                   {steps.map((step, index) => (
                     <CarouselItem key={index}>

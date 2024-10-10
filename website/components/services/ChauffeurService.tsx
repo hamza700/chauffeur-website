@@ -56,6 +56,20 @@ const ChauffeurService: React.FC = () => {
       passengers: 6,
       luggage: 4,
     },
+    {
+      className: 'SUV',
+      vehicles: ['Mercedes-Benz G-Class', 'BMW X5', 'Cadillac Escalade'],
+      image: '/images/suv-class.webp',
+      passengers: 5,
+      luggage: 3,
+    },
+    {
+      className: 'Electric Class',
+      vehicles: ['Mercedes-Benz EQV', 'BMW iX', 'Audi e-tron'],
+      image: '/images/electric-class.webp',
+      passengers: 4,
+      luggage: 2,
+    },
   ];
 
   const testimonials = [
@@ -279,7 +293,7 @@ const ChauffeurService: React.FC = () => {
           <h2 className="text-4xl font-bold text-center mb-16">
             Our Luxury Fleet at Your Service
           </h2>
-          <Carousel className="w-full max-w-5xl mx-auto">
+          <Carousel className="w-full max-w-5xl mx-auto" opts={{ loop: true }}>
             <CarouselContent>
               {fleetData.map((fleet, index) => (
                 <CarouselItem

@@ -31,7 +31,7 @@ const HeroSection: React.FC = () => {
           className="text-center"
         >
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
-            Experience <span className="text-primary">Luxury Travel</span>
+            Experience Luxury Travel
           </h1>
           <p className="text-xl sm:text-2xl text-white mb-8 max-w-3xl mx-auto leading-relaxed">
             Elevate your journey with our premium chauffeur service
