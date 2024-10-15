@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import BookingComponent from '@/components/booking/BookingComponent';
+import BookingComponent from '@/components/booking/booking-component';
 import { Button } from '@/components/ui/button';
 import {
   Accordion,

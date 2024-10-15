@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import BookingComponent from '../booking/BookingComponent';
+import BookingComponent from '../booking/booking-component';
 
 const HeroSection: React.FC = () => {
   return (

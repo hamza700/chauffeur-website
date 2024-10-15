@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import DownloadButtons from './DownloadButtons';
+import DownloadButtons from './download-buttons';
 
 const DownloadApp: React.FC = () => {
   return (

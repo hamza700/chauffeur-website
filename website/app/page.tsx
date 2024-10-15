@@ -1,8 +1,8 @@
-import HeroSection from '@/components/hero/HeroSection';
-import HowItWorks from '@/components/home/HowItWorks';
-import OurServices from '@/components/home/OurServices';
-import CompanyFacts from '@/components/home/CompanyFacts';
-import DownloadApp from '@/components/home/DownloadApp';
+import HeroSection from '@/components/hero/hero-section';
+import HowItWorks from '@/components/home/how-it-works';
+import OurServices from '@/components/home/our-services';
+import CompanyFacts from '@/components/home/company-facts';
+import DownloadApp from '@/components/home/download-app';
 
 export default function Home() {
   return (

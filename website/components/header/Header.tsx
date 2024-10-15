@@ -37,8 +37,8 @@ function Header() {
   }, []);
 
   return (
-    <header className="bg-white shadow-lg relative z-50">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+    <header className="bg-primary text-primary-foreground shadow-lg relative z-50">
+      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center">
           <Image
             src="/logo.webp"
@@ -60,11 +60,11 @@ function Header() {
                     onMouseEnter={() => handleMouseEnter(item.label)}
                     onMouseLeave={handleMouseLeave}
                   >
-                    <NavigationMenuTrigger className="bg-transparent hover:bg-gray-100 text-gray-700 font-medium">
+                    <NavigationMenuTrigger className="bg-transparent hover:bg-gray-400 text-white font-medium">
                       {item.label}
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <ul className="w-[220px] p-3 bg-white rounded-md shadow-lg">
+                      <ul className="w-[220px] p-3 bg-gray-900 rounded-md shadow-lg">
                         {item.children.map((child) => (
                           <ListItem
                             key={child.label}
@@ -80,7 +80,7 @@ function Header() {
                     <NavigationMenuLink
                       className={cn(
                         navigationMenuTriggerStyle(),
-                        'bg-transparent hover:bg-gray-100 text-gray-700 font-medium'
+                        'bg-transparent hover:bg-gray-400 text-white font-medium'
                       )}
                     >
                       {item.label}
@@ -96,7 +96,7 @@ function Header() {
           <SignedIn>
             <Link
               href="/manage-bookings"
-              className="text-gray-700 hover:text-gray-900 font-medium"
+              className="text-white hover:text-gray-300 font-medium"
             >
               Manage Bookings
             </Link>
@@ -112,8 +112,8 @@ function Header() {
           <SignedOut>
             <SignInButton mode="modal">
               <Button
-                variant="default"
-                className="bg-primary text-white hover:bg-primary/90"
+                variant="outline"
+                className="bg-white text-black hover:bg-gray-200"
               >
                 Sign In
               </Button>
@@ -124,27 +124,27 @@ function Header() {
         {/* Mobile Menu Button */}
         <Button variant="ghost" className="lg:hidden p-2" onClick={toggleMenu}>
           {isMenuOpen ? (
-            <X className="h-6 w-6 text-gray-700" />
+            <X className="h-6 w-6 text-white" />
           ) : (
-            <Menu className="h-6 w-6 text-gray-700" />
+            <Menu className="h-6 w-6 text-white" />
           )}
         </Button>
       </div>
 
       {/* Mobile Navigation */}
       {isMenuOpen && (
-        <nav className="lg:hidden bg-white px-4 py-3 border-t">
+        <nav className="lg:hidden bg-gray-900 px-4 py-3 border-t border-gray-700">
           {navItems.map((item) => (
             <div key={item.label} className="py-2">
               {item.children ? (
                 <NavigationMenu orientation="vertical">
                   <NavigationMenuList>
                     <NavigationMenuItem>
-                      <NavigationMenuTrigger className="w-full justify-between">
+                      <NavigationMenuTrigger className="w-full justify-between text-white">
                         {item.label}
                       </NavigationMenuTrigger>
                       <NavigationMenuContent>
-                        <ul className="w-full p-2 bg-gray-50 rounded-md">
+                        <ul className="w-full p-2 bg-gray-800 rounded-md">
                           {item.children.map((child) => (
                             <ListItem
                               key={child.label}
@@ -160,7 +160,7 @@ function Header() {
               ) : (
                 <Link
                   href={item.href}
-                  className="block py-2 text-gray-700 hover:text-gray-900 font-medium"
+                  className="block py-2 text-white hover:text-gray-300 font-medium"
                 >
                   {item.label}
                 </Link>
@@ -170,7 +170,7 @@ function Header() {
           <SignedIn>
             <Link
               href="/manage-bookings"
-              className="block py-2 text-gray-700 hover:text-gray-900 font-medium"
+              className="block py-2 text-white hover:text-gray-300 font-medium"
             >
               Manage Bookings
             </Link>
@@ -188,8 +188,8 @@ function Header() {
           <SignedOut>
             <SignInButton mode="modal">
               <Button
-                variant="default"
-                className="w-full mt-2 bg-primary text-white hover:bg-primary/90"
+                variant="outline"
+                className="w-full mt-2 bg-white text-black hover:bg-gray-200"
               >
                 Sign In
               </Button>
@@ -211,14 +211,14 @@ const ListItem = React.forwardRef<
         <a
           ref={ref}
           className={cn(
-            'block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900',
+            'block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-gray-700 hover:text-white focus:bg-gray-700 focus:text-white text-gray-300',
             className
           )}
           {...props}
         >
           <div className="text-sm font-medium leading-none">{title}</div>
           {children && (
-            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground mt-1">
+            <p className="line-clamp-2 text-sm leading-snug text-gray-400 mt-1">
               {children}
             </p>
           )}

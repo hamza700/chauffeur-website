@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import Header from '@/components/header/Header';
-import Footer from '@/components/footer/Footer';
+import Header from '@/components/header/header';
+import Footer from '@/components/footer/footer';
 import { ClerkProvider } from '@clerk/nextjs';
 import "./globals.css";
 

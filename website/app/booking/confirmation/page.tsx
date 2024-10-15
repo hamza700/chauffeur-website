@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useSearchParams } from 'next/navigation';
-import ConfirmationPage from '@/components/booking/ConfirmationPage';
+import ConfirmationPage from '@/components/booking/confirmation-page';
 
 export default function BookingConfirmationPage() {
   const searchParams = useSearchParams();

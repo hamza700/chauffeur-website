@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { useSearchParams } from 'next/navigation';
-import ChauffeurService from '@/components/services/ChauffeurService';
-import HourlyRates from '@/components/services/HourlyRates';
+import ChauffeurService from '@/components/services/chauffeur-service';
+import HourlyRates from '@/components/services/hourly-rates';
 
 export default function ServicesPage() {
   const searchParams = useSearchParams();
