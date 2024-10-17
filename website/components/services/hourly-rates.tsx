@@ -4,13 +4,8 @@ import { motion } from 'framer-motion';
 import BookingComponent from '@/components/booking/booking-component';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
 import { Star, Clock, Shield, Award, ChevronRight } from 'lucide-react';
+import FAQAccordion from '@/components/faq/faq-accordion';
 
 const HourlyRates: React.FC = () => {
   const topRef = useRef<HTMLDivElement>(null);
@@ -62,6 +57,29 @@ const HourlyRates: React.FC = () => {
       role: 'Tourist',
       content:
         'We booked the hourly service for a day tour of the city. Our chauffeur was knowledgeable and made the experience unforgettable.',
+    },
+  ];
+
+  const faqItems = [
+    {
+      question: 'How does the hourly service work?',
+      answer:
+        "Our hourly service allows you to book a chauffeur and vehicle for a minimum of 2 hours. You can extend your booking as needed, and you'll only be charged for the time you use.",
+    },
+    {
+      question: 'Can I make multiple stops during my hourly booking?',
+      answer:
+        'Yes, you can make as many stops as you like within your booked time. Just inform your chauffeur of your desired itinerary.',
+    },
+    {
+      question: 'What if I need to extend my booking?',
+      answer:
+        'You can extend your booking on-the-go, subject to availability. Simply inform your chauffeur or contact our customer service.',
+    },
+    {
+      question: 'Is there a cancellation fee for hourly bookings?',
+      answer:
+        'Cancellations made more than 24 hours before the scheduled pickup time are free of charge. For cancellations within 24 hours, a fee may apply. Please refer to our terms and conditions for details.',
     },
   ];
 
@@ -343,48 +361,7 @@ const HourlyRates: React.FC = () => {
             Frequently Asked Questions
           </h2>
           <div className="max-w-3xl mx-auto">
-            <Accordion type="single" collapsible className="space-y-6">
-              <AccordionItem value="item-1" className="border rounded-lg p-2">
-                <AccordionTrigger className="text-xl font-semibold">
-                  How does the hourly service work?
-                </AccordionTrigger>
-                <AccordionContent className="text-gray-600 pt-4">
-                  Our hourly service allows you to book a chauffeur and vehicle
-                  for a minimum of 2 hours. You can extend your booking as
-                  needed, and you&apos;ll only be charged for the time you use.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-2" className="border rounded-lg p-2">
-                <AccordionTrigger className="text-xl font-semibold">
-                  Can I make multiple stops during my hourly booking?
-                </AccordionTrigger>
-                <AccordionContent className="text-gray-600 pt-4">
-                  Yes, you can make as many stops as you like within your booked
-                  time. Just inform your chauffeur of your desired itinerary.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-3" className="border rounded-lg p-2">
-                <AccordionTrigger className="text-xl font-semibold">
-                  What if I need to extend my booking?
-                </AccordionTrigger>
-                <AccordionContent className="text-gray-600 pt-4">
-                  You can extend your booking on-the-go, subject to
-                  availability. Simply inform your chauffeur or contact our
-                  customer service.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-4" className="border rounded-lg p-2">
-                <AccordionTrigger className="text-xl font-semibold">
-                  Is there a cancellation fee for hourly bookings?
-                </AccordionTrigger>
-                <AccordionContent className="text-gray-600 pt-4">
-                  Cancellations made more than 24 hours before the scheduled
-                  pickup time are free of charge. For cancellations within 24
-                  hours, a fee may apply. Please refer to our terms and
-                  conditions for details.
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+            <FAQAccordion items={faqItems} />
           </div>
         </div>
       </section>

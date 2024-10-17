@@ -4,12 +4,6 @@ import { motion } from 'framer-motion';
 import BookingComponent from '@/components/booking/booking-component';
 import { Button } from '@/components/ui/button';
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
-import {
   Star,
   Clock,
   Shield,
@@ -26,6 +20,7 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import FAQAccordion from '@/components/faq/faq-accordion';
 
 const ChauffeurService: React.FC = () => {
   const topRef = useRef<HTMLDivElement>(null);
@@ -90,6 +85,29 @@ const ChauffeurService: React.FC = () => {
       role: 'Frequent Traveler',
       content:
         "The best chauffeur service I've experienced. Their attention to detail is unmatched.",
+    },
+  ];
+
+  const faqItems = [
+    {
+      question: 'How do I book a chauffeur service?',
+      answer:
+        'You can book our chauffeur service through our website, mobile app, or by calling our customer service. Simply provide your travel details, select your preferred vehicle, and confirm your booking.',
+    },
+    {
+      question: 'What types of vehicles are available?',
+      answer:
+        'We offer a range of luxury vehicles including sedans, SUVs, and vans. Our fleet includes popular models from Mercedes-Benz, BMW, and Audi, among others.',
+    },
+    {
+      question: 'Are your drivers professionally trained?',
+      answer:
+        'Yes, all our chauffeurs are professionally trained, licensed, and experienced. They undergo rigorous background checks and are trained in customer service to ensure your safety and comfort.',
+    },
+    {
+      question: 'What is your cancellation policy?',
+      answer:
+        'Our cancellation policy allows free cancellation up to 24 hours before your scheduled pickup time. Cancellations made within 24 hours may be subject to a fee. Please refer to our terms and conditions for more details.',
     },
   ];
 
@@ -402,51 +420,7 @@ const ChauffeurService: React.FC = () => {
             Frequently Asked Questions
           </h2>
           <div className="max-w-3xl mx-auto">
-            <Accordion type="single" collapsible className="space-y-6">
-              <AccordionItem value="item-1" className="border rounded-lg p-2">
-                <AccordionTrigger className="text-xl font-semibold">
-                  How do I book a chauffeur service?
-                </AccordionTrigger>
-                <AccordionContent className="text-gray-600 pt-4">
-                  You can book our chauffeur service through our website, mobile
-                  app, or by calling our customer service. Simply provide your
-                  travel details, select your preferred vehicle, and confirm
-                  your booking.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-2" className="border rounded-lg p-2">
-                <AccordionTrigger className="text-xl font-semibold">
-                  What types of vehicles are available?
-                </AccordionTrigger>
-                <AccordionContent className="text-gray-600 pt-4">
-                  We offer a range of luxury vehicles including sedans, SUVs,
-                  and vans. Our fleet includes popular models from
-                  Mercedes-Benz, BMW, and Audi, among others.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-3" className="border rounded-lg p-2">
-                <AccordionTrigger className="text-xl font-semibold">
-                  Are your drivers professionally trained?
-                </AccordionTrigger>
-                <AccordionContent className="text-gray-600 pt-4">
-                  Yes, all our chauffeurs are professionally trained, licensed,
-                  and experienced. They undergo rigorous background checks and
-                  are trained in customer service to ensure your safety and
-                  comfort.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-4" className="border rounded-lg p-2">
-                <AccordionTrigger className="text-xl font-semibold">
-                  What is your cancellation policy?
-                </AccordionTrigger>
-                <AccordionContent className="text-gray-600 pt-4">
-                  Our cancellation policy allows free cancellation up to 24
-                  hours before your scheduled pickup time. Cancellations made
-                  within 24 hours may be subject to a fee. Please refer to our
-                  terms and conditions for more details.
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+            <FAQAccordion items={faqItems} />
           </div>
         </div>
       </section>

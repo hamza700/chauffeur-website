@@ -541,6 +541,41 @@ website
 
 ---
 
+### 8. Partner With Us Page
+
+#### Overview
+
+- **Purpose**: Provide detailed information about partnernign with the chauffeur company
+- **Implementation**:
+  - Use a single `page.tsx` file under the `partner-with-us` directory.
+
+#### Detailed Requirements
+
+- **Content Sections**:
+  - **Introduction**:
+    - Overview of the service.
+    - High-quality banner image.
+    - Apply now button in the middle that redirect to another link
+  - **Features**:
+    - List of key benefits.
+    - Icons and images to enhance readability.
+  - **Information with images**:
+    - Text with title on one side and image on the other
+    - Have two of them but the images and texts inverted sides for the second one
+  - **Testimonials**:
+    - Customer reviews and ratings.
+  - **Call to Action**:
+    - Encouragement to apply now.
+    - Contact information for inquiries.
+  - **FaQs**:
+    - FaQs relaetd to teh servcie in accordions.
+- **Design Elements**:
+  - Consistent styling with the rest of the website.
+  - Use of cards, sections, and grids to organize content.
+  - Responsive images and icons for different screen sizes.
+
+---
+
 ## Additional Technical Requirements
 
 ### Authentication and User Management

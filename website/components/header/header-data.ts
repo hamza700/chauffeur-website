@@ -9,12 +9,12 @@ export const navItems: NavItem[] = [
     label: 'Our Services',
     href: '#',
     children: [
-      { label: 'Chauffeur Service', href: '/services?type=chauffeur' },
-      { label: 'Hourly Rates', href: '/services?type=hourly' },
+      { label: 'Chauffeur Service', href: '/services/chauffeur' },
+      { label: 'Hourly Rates', href: '/services/hourly-rates' },
     ],
   },
   {
     label: 'Partner With Us',
-    href: process.env.NEXT_PUBLIC_PARTNER_LINK || '#',
+    href: '/partner-with-us',
   },
 ];

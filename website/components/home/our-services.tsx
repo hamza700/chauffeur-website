@@ -53,13 +53,13 @@ const services = [
     title: 'Chauffeur Service',
     description: 'Experience luxury travel with our professional chauffeurs.',
     imageSrc: '/images/chauffeur-service.jpeg',
-    href: '/services?type=chauffeur',
+    href: '/services/chauffeur',
   },
   {
     title: 'Hourly Rates',
     description: 'Flexible hourly bookings for your convenience.',
     imageSrc: '/images/hourly-rates.jpeg',
-    href: '/services?type=hourly',
+    href: '/services/hourly-rates',
   },
 ];
 
