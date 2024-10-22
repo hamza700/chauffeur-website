@@ -86,8 +86,8 @@ function HowItWorks() {
                     className={cn(
                       'flex items-center w-full p-6 rounded-xl transition-all duration-300 shadow-sm',
                       activeStep === index
-                        ? 'bg-primary text-white'
-                        : 'bg-white hover:bg-gray-100'
+                        ? 'bg-primary text-white border-2 border-primary'
+                        : 'bg-white hover:bg-gray-100 border-2 border-gray-300'
                     )}
                     onClick={() => handleStepClick(index)}
                   >

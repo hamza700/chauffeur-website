@@ -1,6 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, {
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+  useMemo,
+} from 'react';
 import { useRouter } from 'next/navigation';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -21,9 +27,45 @@ import {
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLoadScript, Autocomplete } from '@react-google-maps/api';
 
-const BookingComponent: React.FC = () => {
+interface Location {
+  address: string;
+  placeId: string;
+  lat: number;
+  lng: number;
+}
+
+interface DistanceData {
+  distance: string;
+  estimatedDuration: string;
+}
+
+// Define libraries outside the component to prevent recreating the array on each render
+const libraries = ['places'];
+
+export function BookingComponent() {
   const router = useRouter();
+  const [loadError, setLoadError] = useState<Error | null>(null);
+
+  // Use useMemo to memoize the options object
+  const mapOptions = useMemo(
+    () => ({
+      googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
+      libraries,
+    }),
+    []
+  );
+
+  const { isLoaded, loadError: scriptLoadError } = useLoadScript(mapOptions);
+
+  useEffect(() => {
+    if (scriptLoadError) {
+      console.error('Error loading Google Maps script:', scriptLoadError);
+      setLoadError(scriptLoadError);
+    }
+  }, [scriptLoadError]);
+
   const [date, setDate] = useState<Date>();
   const [activeTab, setActiveTab] = useState('oneWay');
   const [formData, setFormData] = useState({
@@ -33,31 +75,172 @@ const BookingComponent: React.FC = () => {
     time: '',
     duration: '',
   });
+  const [pickupLocation, setPickupLocation] = useState<Location | null>(null);
+  const [dropoffLocation, setDropoffLocation] = useState<Location | null>(null);
+  const [distanceData, setDistanceData] = useState<DistanceData | null>(null);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const pickupAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(
+    null
+  );
+  const dropoffAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(
+    null
+  );
+
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    },
+    []
+  );
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Convert the form data to query parameters
     const queryParams = new URLSearchParams({
       ...formData,
       type: activeTab,
       date: date ? date.toISOString() : '',
+      ...(distanceData && {
+        distance: distanceData.distance,
+        estimatedDuration: distanceData.estimatedDuration,
+      }),
     }).toString();
-
-    // Redirect to the booking page with query parameters
     router.push(`/booking?${queryParams}`);
   };
+
+  const handlePlaceSelect = useCallback(
+    (
+      autocomplete: google.maps.places.Autocomplete,
+      locationType: 'pickup' | 'dropoff'
+    ) => {
+      const place = autocomplete.getPlace();
+      if (place.geometry?.location) {
+        const newLocation: Location = {
+          address: place.formatted_address || '',
+          placeId: place.place_id || '',
+          lat: place.geometry.location.lat(),
+          lng: place.geometry.location.lng(),
+        };
+
+        if (locationType === 'pickup') {
+          setPickupLocation(newLocation);
+          setFormData((prev) => ({
+            ...prev,
+            pickupLocation: newLocation.address,
+          }));
+        } else {
+          setDropoffLocation(newLocation);
+          setFormData((prev) => ({
+            ...prev,
+            dropoffLocation: newLocation.address,
+          }));
+        }
+      } else {
+        console.error(
+          `${locationType} place geometry or location not available`
+        );
+      }
+    },
+    []
+  );
+
+  const calculateDistance = useCallback(async () => {
+    if (pickupLocation && dropoffLocation) {
+      const service = new google.maps.DistanceMatrixService();
+      try {
+        const response = await service.getDistanceMatrix({
+          origins: [{ lat: pickupLocation.lat, lng: pickupLocation.lng }],
+          destinations: [
+            { lat: dropoffLocation.lat, lng: dropoffLocation.lng },
+          ],
+          travelMode: google.maps.TravelMode.DRIVING,
+          unitSystem: google.maps.UnitSystem.METRIC,
+        });
+
+        if (response.rows[0].elements[0].status === 'OK') {
+          const newDistanceData = {
+            distance: response.rows[0].elements[0].distance.text,
+            estimatedDuration: response.rows[0].elements[0].duration.text,
+          };
+          setDistanceData(newDistanceData);
+        } else {
+          console.error(
+            'DistanceMatrix status not OK:',
+            response.rows[0].elements[0].status
+          );
+        }
+      } catch (error) {
+        console.error('Error calculating distance:', error);
+      }
+    }
+  }, [pickupLocation, dropoffLocation]);
+
+  useEffect(() => {
+    if (activeTab === 'oneWay') {
+      calculateDistance();
+    }
+  }, [pickupLocation, dropoffLocation, activeTab, calculateDistance]);
+
+  // Optimize Autocomplete components
+  const renderAutocomplete = useCallback(
+    (locationType: 'pickup' | 'dropoff') => (
+      <Autocomplete
+        onLoad={(autocomplete) => {
+          if (locationType === 'pickup') {
+            pickupAutocompleteRef.current = autocomplete;
+          } else {
+            dropoffAutocompleteRef.current = autocomplete;
+          }
+          autocomplete.setComponentRestrictions({ country: 'gb' });
+          autocomplete.setFields([
+            'address_components',
+            'geometry',
+            'place_id',
+            'formatted_address',
+          ]);
+        }}
+        onPlaceChanged={() => {
+          const autocomplete =
+            locationType === 'pickup'
+              ? pickupAutocompleteRef.current
+              : dropoffAutocompleteRef.current;
+          if (autocomplete) {
+            handlePlaceSelect(autocomplete, locationType);
+          }
+        }}
+      >
+        <Input
+          type="text"
+          placeholder={`${
+            locationType === 'pickup' ? 'Pickup' : 'Dropoff'
+          } Location`}
+          name={`${locationType}Location`}
+          value={formData[`${locationType}Location`]}
+          onChange={handleInputChange}
+          className="pl-10 py-6 rounded-lg border-gray-300 focus:border-primary focus:ring-primary"
+        />
+      </Autocomplete>
+    ),
+    [formData, handleInputChange, handlePlaceSelect]
+  );
+
+  if (loadError) {
+    return (
+      <div className="text-red-500 p-4">
+        Error loading Google Maps: {loadError.message}. Please check your API
+        key and console for more details.
+      </div>
+    );
+  }
+
+  if (!isLoaded) return <div className="p-4">Loading maps...</div>;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="w-full max-w-5xl bg-white rounded-2xl shadow-2xl p-6 sm:p-8"
+      className="w-full max-w-7xl bg-white rounded-2xl shadow-2xl p-6 sm:p-8"
     >
       <Tabs
         defaultValue="oneWay"
@@ -102,26 +285,12 @@ const BookingComponent: React.FC = () => {
             >
               <div className="flex-1 relative">
                 <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary" />
-                <Input
-                  type="text"
-                  placeholder="Pickup Location"
-                  name="pickupLocation"
-                  value={formData.pickupLocation}
-                  onChange={handleInputChange}
-                  className="pl-10 py-6 rounded-lg border-gray-300 focus:border-primary focus:ring-primary"
-                />
+                {renderAutocomplete('pickup')}
               </div>
               {activeTab === 'oneWay' && (
                 <div className="flex-1 relative">
                   <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary" />
-                  <Input
-                    type="text"
-                    placeholder="Dropoff Location"
-                    name="dropoffLocation"
-                    value={formData.dropoffLocation}
-                    onChange={handleInputChange}
-                    className="pl-10 py-6 rounded-lg border-gray-300 focus:border-primary focus:ring-primary"
-                  />
+                  {renderAutocomplete('dropoff')}
                 </div>
               )}
               {activeTab === 'hourly' && (
@@ -132,7 +301,7 @@ const BookingComponent: React.FC = () => {
                     handleInputChange({ target: { name: 'duration', value } })
                   }
                 >
-                  <SelectTrigger className="w-full sm:w-[150px] py-6 rounded-lg border-gray-300 focus:border-primary focus:ring-primary">
+                  <SelectTrigger className="w-full sm:w-[180px] py-6 rounded-lg border-gray-300 focus:border-primary focus:ring-primary">
                     <SelectValue placeholder="Duration (hours)" />
                   </SelectTrigger>
                   <SelectContent
@@ -157,7 +326,7 @@ const BookingComponent: React.FC = () => {
                   <Button
                     variant={'outline'}
                     className={cn(
-                      'w-full sm:w-[180px] justify-start text-left font-normal py-6 rounded-lg border-gray-300',
+                      'w-full sm:w-[200px] justify-start text-left font-normal py-6 rounded-lg border-gray-300',
                       !date && 'text-muted-foreground'
                     )}
                   >
@@ -186,7 +355,7 @@ const BookingComponent: React.FC = () => {
                   handleInputChange({ target: { name: 'time', value } })
                 }
               >
-                <SelectTrigger className="w-full sm:w-[140px] py-6 rounded-lg border-gray-300 focus:border-primary focus:ring-primary">
+                <SelectTrigger className="w-full sm:w-[160px] py-6 rounded-lg border-gray-300 focus:border-primary focus:ring-primary">
                   <SelectValue placeholder="Select time">
                     <div className="flex items-center">
                       <Clock className="mr-2 h-4 w-4 text-primary" />
@@ -231,6 +400,6 @@ const BookingComponent: React.FC = () => {
       </Tabs>
     </motion.div>
   );
-};
+}
 
 export default BookingComponent;

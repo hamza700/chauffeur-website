@@ -17,4 +17,8 @@ export const navItems: NavItem[] = [
     label: 'Partner With Us',
     href: '/partner-with-us',
   },
+  {
+    label: 'FAQ',
+    href: '/faq',
+  },
 ];

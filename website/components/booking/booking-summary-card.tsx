@@ -7,14 +7,7 @@ import {
   CardFooter,
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import {
-  CreditCard,
-  MapPin,
-  Calendar,
-  Clock,
-  Users,
-  Briefcase,
-} from 'lucide-react';
+import { MapPin, Calendar, Clock, Users, Briefcase } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface BookingSummaryCardProps {
@@ -27,9 +20,6 @@ interface BookingSummaryCardProps {
       passengers: number;
       luggage: number;
     } | null;
-    paymentDetails: {
-      cardNumber?: string;
-    } | null;
     initialBookingDetails: {
       type: string | null;
       pickupLocation: string | null;
@@ -38,13 +28,17 @@ interface BookingSummaryCardProps {
       time: string | null;
       duration: string | null;
     } | null;
+    distanceData: {
+      distance: string | null;
+      estimatedDuration: string | null;
+    } | null;
   };
 }
 
 const BookingSummaryCard: React.FC<BookingSummaryCardProps> = ({
   bookingData,
 }) => {
-  const { customerDetails, paymentDetails, initialBookingDetails } =
+  const { customerDetails, initialBookingDetails, distanceData, vehicle } =
     bookingData;
 
   const formatDate = (dateString: string | null) => {
@@ -72,14 +66,6 @@ const BookingSummaryCard: React.FC<BookingSummaryCardProps> = ({
             <div>
               <h3 className="font-semibold text-lg mb-3">Booking Details</h3>
               <ul className="space-y-3">
-                <li className="flex items-center justify-between">
-                  <span className="flex items-center text-gray-600">
-                    <MapPin className="w-4 h-4 mr-2" /> Type
-                  </span>
-                  <span className="font-medium">
-                    {initialBookingDetails?.type || 'N/A'}
-                  </span>
-                </li>
                 <li className="flex items-center justify-between">
                   <span className="flex items-center text-gray-600">
                     <MapPin className="w-4 h-4 mr-2" /> Pickup
@@ -115,7 +101,7 @@ const BookingSummaryCard: React.FC<BookingSummaryCardProps> = ({
                     <Calendar className="w-4 h-4 mr-2" /> Date
                   </span>
                   <span className="font-medium">
-                    {formatDate(initialBookingDetails?.date || 'N/A')}
+                    {formatDate(initialBookingDetails?.date || null)}
                   </span>
                 </li>
                 <li className="flex items-center justify-between">
@@ -126,82 +112,86 @@ const BookingSummaryCard: React.FC<BookingSummaryCardProps> = ({
                     {initialBookingDetails?.time || 'N/A'}
                   </span>
                 </li>
+                {distanceData && (
+                  <>
+                    <li className="flex items-center justify-between">
+                      <span className="flex items-center text-gray-600">
+                        <MapPin className="w-4 h-4 mr-2" /> Distance
+                      </span>
+                      <span className="font-medium">
+                        {distanceData.distance}
+                      </span>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span className="flex items-center text-gray-600">
+                        <Clock className="w-4 h-4 mr-2" /> Estimated Duration
+                      </span>
+                      <span className="font-medium">
+                        {distanceData.estimatedDuration}
+                      </span>
+                    </li>
+                  </>
+                )}
               </ul>
             </div>
-            <Separator />
-            <div>
-              <h3 className="font-semibold text-lg mb-3">
-                Vehicle Information
-              </h3>
-              <p className="text-gray-600">{bookingData.vehicle || 'N/A'}</p>
-            </div>
-            <Separator />
-            <div>
-              <h3 className="font-semibold text-lg mb-3">
-                Customer Information
-              </h3>
-              {customerDetails ? (
-                <ul className="space-y-3">
-                  <li className="flex items-center justify-between">
-                    <span className="flex items-center text-gray-600">
-                      <Users className="w-4 h-4 mr-2" /> Customer
-                    </span>
-                    <span className="font-medium">
-                      {customerDetails.firstName} {customerDetails.lastName}
-                    </span>
-                  </li>
-                  <li className="flex items-center justify-between">
-                    <span className="flex items-center text-gray-600">
-                      <MapPin className="w-4 h-4 mr-2" /> Email
-                    </span>
-                    <a
-                      href={`mailto:${customerDetails.email}`}
-                      className="font-medium text-primary hover:underline"
-                    >
-                      {customerDetails.email}
-                    </a>
-                  </li>
-                  <li className="flex items-center justify-between">
-                    <span className="flex items-center text-gray-600">
-                      <Users className="w-4 h-4 mr-2" /> Passengers
-                    </span>
-                    <span className="font-medium">
-                      {customerDetails.passengers}
-                    </span>
-                  </li>
-                  <li className="flex items-center justify-between">
-                    <span className="flex items-center text-gray-600">
-                      <Briefcase className="w-4 h-4 mr-2" /> Luggage
-                    </span>
-                    <span className="font-medium">
-                      {customerDetails.luggage}
-                    </span>
-                  </li>
-                </ul>
-              ) : (
-                <p className="text-gray-600">No customer details available</p>
-              )}
-            </div>
-            <Separator />
-            <div>
-              <h3 className="font-semibold text-lg mb-3">
-                Payment Information
-              </h3>
-              {paymentDetails && paymentDetails.cardNumber ? (
-                <ul className="space-y-3">
-                  <li className="flex items-center justify-between">
-                    <span className="flex items-center text-gray-600">
-                      <CreditCard className="w-4 h-4 mr-2" /> Card
-                    </span>
-                    <span className="font-medium">
-                      **** **** **** {paymentDetails.cardNumber.slice(-4)}
-                    </span>
-                  </li>
-                </ul>
-              ) : (
-                <p className="text-gray-600">No payment details available</p>
-              )}
-            </div>
+            {vehicle && (
+              <>
+                <Separator />
+                <div>
+                  <h3 className="font-semibold text-lg mb-3">
+                    Vehicle Information
+                  </h3>
+                  <p className="text-gray-600">{vehicle}</p>
+                </div>
+              </>
+            )}
+            {customerDetails && (
+              <>
+                <Separator />
+                <div>
+                  <h3 className="font-semibold text-lg mb-3">
+                    Customer Information
+                  </h3>
+                  <ul className="space-y-3">
+                    <li className="flex items-center justify-between">
+                      <span className="flex items-center text-gray-600">
+                        <Users className="w-4 h-4 mr-2" /> Customer
+                      </span>
+                      <span className="font-medium">
+                        {customerDetails.firstName} {customerDetails.lastName}
+                      </span>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span className="flex items-center text-gray-600">
+                        <MapPin className="w-4 h-4 mr-2" /> Email
+                      </span>
+                      <a
+                        href={`mailto:${customerDetails.email}`}
+                        className="font-medium text-primary hover:underline"
+                      >
+                        {customerDetails.email}
+                      </a>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span className="flex items-center text-gray-600">
+                        <Users className="w-4 h-4 mr-2" /> Passengers
+                      </span>
+                      <span className="font-medium">
+                        {customerDetails.passengers}
+                      </span>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span className="flex items-center text-gray-600">
+                        <Briefcase className="w-4 h-4 mr-2" /> Luggage
+                      </span>
+                      <span className="font-medium">
+                        {customerDetails.luggage}
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+              </>
+            )}
           </div>
         </CardContent>
         <CardFooter className="flex flex-row items-center border-t bg-gray-50 px-6 py-4">

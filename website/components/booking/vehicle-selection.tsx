@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
@@ -114,12 +116,6 @@ function VehicleSelection({ onNext }: VehicleSelectionProps) {
               <span className="flex items-center text-gray-700">
                 <Shield className="w-4 h-4 mr-2" /> Safe and secure travel
               </span>
-              <Button
-                variant="link"
-                className="p-0 text-primary hover:underline"
-              >
-                Show more information
-              </Button>
             </CardFooter>
           </Card>
         </motion.div>

@@ -17,9 +17,14 @@ const steps = [
 ];
 
 interface BookingData {
-  vehicle: any;
-  customerDetails: any;
-  paymentDetails: any;
+  vehicle: string | null;
+  customerDetails: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    passengers: number;
+    luggage: number;
+  } | null;
   initialBookingDetails: {
     type: string | null;
     pickupLocation: string | null;
@@ -27,6 +32,10 @@ interface BookingData {
     date: string | null;
     time: string | null;
     duration: string | null;
+  } | null;
+  distanceData: {
+    distance: string | null;
+    estimatedDuration: string | null;
   } | null;
 }
 
@@ -37,8 +46,8 @@ export function BookingViewPage() {
   const [bookingData, setBookingData] = useState<BookingData>({
     vehicle: null,
     customerDetails: null,
-    paymentDetails: null,
     initialBookingDetails: null,
+    distanceData: null,
   });
 
   useEffect(() => {
@@ -50,7 +59,15 @@ export function BookingViewPage() {
       time: searchParams.get('time'),
       duration: searchParams.get('duration'),
     };
-    setBookingData((prev) => ({ ...prev, initialBookingDetails }));
+    const distanceData = {
+      distance: searchParams.get('distance'),
+      estimatedDuration: searchParams.get('estimatedDuration'),
+    };
+    setBookingData((prev) => ({
+      ...prev,
+      initialBookingDetails,
+      distanceData,
+    }));
   }, [searchParams]);
 
   const handleNext = (data: Partial<BookingData>) => {

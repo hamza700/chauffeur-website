@@ -31,49 +31,122 @@
 To ensure a clear and maintainable codebase, the following file structure is proposed. This structure is designed to minimize the number of files while providing clarity and separation of concerns for developers.
 
 website
+.
 ├── README.md
 ├── app
+│   ├── booking
+│   │   ├── confirmation
+│   │   └── page.tsx
+│   ├── error.tsx
+│   ├── faq
+│   │   ├── [category]
+│   │   └── page.tsx
 │   ├── favicon.ico
 │   ├── fonts
+│   │   ├── GeistMonoVF.woff
+│   │   └── GeistVF.woff
 │   ├── globals.css
-│   ├── layout.tsx          // Root layout with Header and Footer
-│   ├── page.tsx            // Landing page with all 7 sections
-│   ├── error.tsx           // Global error page
-│   ├── booking
-│   │   └── page.tsx        // Booking page with all steps
-│   ├── contact-us
-│   │   └── page.tsx        // Contact Us page
+│   ├── layout.tsx
 │   ├── manage-bookings
-│   │   ├── page.tsx        // Manage Bookings page
-│   │   └── [bookingId]
-│   │       └── page.tsx    // Booking Details page
-│   ├── services
-│   │   └── page.tsx        // Services page (content varies based on service)
-│   ├── faq
-│   │   ├── page.tsx        // FAQ main page
-│   │   └── [category]
-│   │       └── page.tsx    // FAQ category page
-│   └── api                 // API routes (if needed)
+│   │   ├── [bookingId]
+│   │   └── page.tsx
+│   ├── not-found.tsx
+│   ├── page.tsx
+│   ├── partner-with-us
+│   │   └── page.tsx
+│   └── services
+│       ├── chauffeur
+│       └── hourly-rates
 ├── components
-│   ├── Header.tsx          // Header component
-│   ├── Footer.tsx          // Footer component
-│   ├── BookingComponent.tsx// Booking component used across pages
-│   ├── BookingSteps.tsx    // Component handling all booking steps
-│   ├── BookingSummaryCard.tsx // Summary card for booking
-│   ├── VehicleCard.tsx     // Vehicle selection card
-│   ├── FAQAccordion.tsx    // FAQ accordion component
-│   └── ui                  // Shared UI components
+│   ├── auth
+│   │   ├── reset-password.tsx
+│   │   ├── sign-in.tsx
+│   │   ├── sign-up.tsx
+│   │   ├── update-password.tsx
+│   │   └── verify.tsx
+│   ├── booking
+│   │   ├── booking-component.tsx
+│   │   ├── booking-summary-card.tsx
+│   │   ├── confirmation-page.tsx
+│   │   ├── customer-details.tsx
+│   │   ├── payment.tsx
+│   │   ├── vehicle-selection.tsx
+│   │   └── view
+│   ├── faq
+│   │   ├── faq-accordion.tsx
+│   │   └── view
+│   ├── footer
+│   │   └── footer.tsx
+│   ├── header
+│   │   ├── header-data.ts
+│   │   └── header.tsx
+│   ├── home
+│   │   ├── company-facts.tsx
+│   │   ├── download-app.tsx
+│   │   ├── download-buttons.tsx
+│   │   ├── hero-section.tsx
+│   │   ├── how-it-works.tsx
+│   │   └── our-services.tsx
+│   ├── manage-bookings
+│   │   ├── booking-details-view.tsx
+│   │   └── manage-bookings-view.tsx
+│   ├── partner-with-us
+│   │   └── partner-with-us-view.tsx
+│   ├── services
+│   │   ├── chauffeur-service.tsx
+│   │   └── hourly-rates.tsx
+│   └── ui
+│       ├── accordion.tsx
+│       ├── button.tsx
+│       ├── calendar.tsx
+│       ├── card.tsx
+│       ├── carousel.tsx
+│       ├── input.tsx
+│       ├── label.tsx
+│       ├── navigation-menu.tsx
+│       ├── popover.tsx
+│       ├── select.tsx
+│       ├── separator.tsx
+│       ├── table.tsx
+│       └── tabs.tsx
+├── components.json
+├── hooks
+│   └── use-carousel.ts
+├── instructions
+│   ├── half-step.png
+│   ├── initial-step.png
+│   ├── instructions.md
+│   └── select-vehicle.png
 ├── lib
-│   └── utils.ts            // Utility functions
-├── public                  // Static assets
-│   ├── images              // Image assets
-│   ├── icons               // Icon assets
-│   └── ...                 // Other public assets
+│   └── utils.ts
+├── middleware.ts
 ├── next-env.d.ts
 ├── next.config.mjs
 ├── package-lock.json
 ├── package.json
 ├── postcss.config.mjs
+├── public
+│   ├── images
+│   │   ├── app-mockup.jpeg
+│   │   ├── business-class.webp
+│   │   ├── business-meetings.jpeg
+│   │   ├── chauffeur-hero.jpeg
+│   │   ├── chauffeur-service.jpeg
+│   │   ├── choose-vehicle.jpeg
+│   │   ├── city-tours.jpeg
+│   │   ├── create-route.jpeg
+│   │   ├── electric-class.webp
+│   │   ├── enjoy-journey.jpeg
+│   │   ├── first-class.webp
+│   │   ├── hero-background.jpeg
+│   │   ├── hourly-rates-hero.jpeg
+│   │   ├── hourly-rates.jpeg
+│   │   ├── luxury-interior.jpeg
+│   │   ├── suv-class.webp
+│   │   ├── tailored-service.jpeg
+│   │   └── van-suv.webp
+│   ├── logo-white.png
+│   └── logo.webp
 ├── tailwind.config.ts
 └── tsconfig.json
 
