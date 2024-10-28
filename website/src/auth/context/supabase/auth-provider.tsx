@@ -11,6 +11,7 @@ import { supabase } from '@/lib/supabase';
 import { AuthContext } from '../auth-context';
 
 import type { AuthState } from '../../types';
+import { addUserRole, insertCustomerRecord } from './action';
 
 // ----------------------------------------------------------------------
 
@@ -63,6 +64,37 @@ export function AuthProvider({ children }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        const user = session.user;
+
+        // Only handle customer record creation for new confirmed users
+        const isNewConfirmedUser =
+          user.confirmed_at &&
+          user.created_at &&
+          new Date(user.confirmed_at).getTime() -
+            new Date(user.created_at).getTime() <
+            24 * 60 * 60 * 1000;
+
+        if (isNewConfirmedUser && user.user_metadata) {
+          try {
+            await addUserRole(user.id, 'customer');
+            await insertCustomerRecord(user);
+          } catch (error) {
+            console.error('Failed to create customer record:', error);
+          }
+        }
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
   // ----------------------------------------------------------------------
 
   const checkAuthenticated = state.user ? 'authenticated' : 'unauthenticated';
@@ -88,5 +120,9 @@ export function AuthProvider({ children }: Props) {
     [checkUserSession, state.user, status]
   );
 
-  return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={memoizedValue}>
+      {children}
+    </AuthContext.Provider>
+  );
 }

@@ -7,6 +7,8 @@ import type {
   AuthTokenResponsePassword,
   SignInWithPasswordCredentials,
   SignUpWithPasswordCredentials,
+  User,
+  PostgrestError,
 } from '@supabase/supabase-js';
 
 import { paths } from '@/routes/paths';
@@ -26,6 +28,7 @@ export type SignUpParams = {
   password: string;
   firstName: string;
   lastName: string;
+  phoneNumber: string;
   options?: SignUpWithPasswordCredentials['options'];
 };
 
@@ -77,6 +80,7 @@ export const signUp = async ({
   password,
   firstName,
   lastName,
+  phoneNumber,
 }: SignUpParams): Promise<AuthResponse> => {
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -87,6 +91,7 @@ export const signUp = async ({
         display_name: `${firstName} ${lastName}`,
         first_name: firstName,
         last_name: lastName,
+        phone_number: phoneNumber,
         roles: 'customer',
       },
     },
@@ -154,4 +159,101 @@ export const updatePassword = async ({
   }
 
   return { data, error };
+};
+
+/** **************************************
+ * Insert customer record
+ *************************************** */
+export const insertCustomerRecord = async (
+  user: User
+): Promise<{ data: any[] | null; error: PostgrestError | null }> => {
+  const { data, error } = await supabase
+    .from('customers')
+    .insert([
+      {
+        id: user.id,
+        email: user.email,
+        first_name: user.user_metadata.first_name,
+        last_name: user.user_metadata.last_name,
+        phone_number: user.user_metadata.phone_number,
+      },
+    ])
+    .select();
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
+  return { data, error };
+};
+
+/** **************************************
+ * Add a role
+ *************************************** */
+export const addUserRole = async (
+  userId: string,
+  role: string
+): Promise<{ data: any[] | null; error: PostgrestError | null }> => {
+  const { data, error } = await supabase
+    .from('user_roles')
+    .insert([{ user_id: userId, role }])
+    .select();
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
+  return { data, error };
+};
+
+/** **************************************
+ * Get customer record
+ *************************************** */
+export const getCustomerRecord = async (
+  userId: string
+): Promise<{ data: any[] | null; error: PostgrestError | null }> => {
+  const { data, error } = await supabase
+    .from('customers')
+    .select()
+    .eq('id', userId);
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
+  return { data, error };
+};
+
+/** **************************************
+ * Update customer record
+ *************************************** */
+interface UpdateCustomerData {
+  first_name?: string;
+  last_name?: string;
+  phone_number?: string;
+}
+
+export const updateCustomerRecord = async (
+  userId: string,
+  data: UpdateCustomerData
+): Promise<{ data: any[] | null; error: PostgrestError | null }> => {
+  const { data: result, error } = await supabase
+    .from('customers')
+    .update({
+      ...(data.first_name && { first_name: data.first_name }),
+      ...(data.last_name && { last_name: data.last_name }),
+      ...(data.phone_number && { phone_number: data.phone_number }),
+    })
+    .eq('id', userId)
+    .select();
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
+  return { data: result, error };
 };

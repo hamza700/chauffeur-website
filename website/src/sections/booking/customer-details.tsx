@@ -12,8 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { SignInButton, SignUpButton } from '@clerk/nextjs';
-import { Separator } from '@/components/ui/separator';
 
 interface CustomerDetailsProps {
   onNext: (data: any) => void;
@@ -36,31 +34,6 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-semibold mb-4">Customer Details</h2>
-        <div className="flex flex-col space-y-4">
-          <div className="flex space-x-4">
-            <SignInButton mode="modal">
-              <Button type="button" variant="outline" className="w-full">
-                Sign In
-              </Button>
-            </SignInButton>
-            <SignUpButton mode="modal">
-              <Button type="button" variant="outline" className="w-full">
-                Sign Up
-              </Button>
-            </SignUpButton>
-          </div>
-          <div className="flex items-center w-full">
-            <Separator className="flex-grow max-w-[42%]" />
-            <span className="px-4 text-sm text-gray-500 whitespace-nowrap">
-              Or continue as guest
-            </span>
-            <Separator className="flex-grow max-w-[41%]" />
-          </div>
-        </div>
-      </div>
-
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="firstName">First Name</Label>
@@ -171,6 +144,25 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({
             {errors.luggage && (
               <p className="text-red-500 text-sm mt-1">
                 {errors.luggage.message as string}
+              </p>
+            )}
+          </div>
+
+          <div className="col-span-2">
+            <Label htmlFor="flightNumber">Flight Number (Optional)</Label>
+            <Input
+              id="flightNumber"
+              placeholder="e.g., BA1234"
+              {...register('flightNumber', {
+                pattern: {
+                  value: /^[A-Z0-9]{2,8}$/i,
+                  message: 'Please enter a valid flight number',
+                },
+              })}
+            />
+            {errors.flightNumber && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.flightNumber.message as string}
               </p>
             )}
           </div>

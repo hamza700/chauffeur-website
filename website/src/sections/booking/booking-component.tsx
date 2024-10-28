@@ -345,6 +345,7 @@ export function BookingComponent() {
                     onSelect={setDate}
                     initialFocus
                     className="rounded-lg border border-gray-200"
+                    disabled={(date) => date < new Date()} // Disable past dates
                   />
                 </PopoverContent>
               </Popover>

@@ -3,7 +3,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Menu, X, BadgeCheck, CreditCard, LogOut } from 'lucide-react';
+import { Menu, X, BadgeCheck, CreditCard, LogOut, Router } from 'lucide-react';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -29,9 +29,13 @@ import { navItems } from './header-data';
 import { useAuthContext } from '@/auth/hooks';
 import { signOut } from '@/auth/context/supabase';
 import { paths } from '@/routes/paths';
+import { useRouter } from '@/routes/hooks';
+
 
 function Header() {
   const { user, checkUserSession } = useAuthContext();
+  const router = useRouter();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -51,7 +55,8 @@ function Header() {
 
   const handleSignOut = async () => {
     await signOut();
-    await checkUserSession();
+    await checkUserSession?.();
+    router.refresh();
   };
 
   return (

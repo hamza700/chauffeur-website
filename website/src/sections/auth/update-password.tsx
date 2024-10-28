@@ -23,6 +23,7 @@ import { paths } from '@/routes/paths';
 import { updatePassword } from '@/auth/context/supabase';
 import { useRouter } from '@/routes/hooks';
 import { useAuthContext } from '@/auth/hooks';
+import { Eye, EyeOff } from 'lucide-react';
 
 // Define the schema for form validation
 const UpdatePasswordSchema = zod
@@ -46,6 +47,8 @@ export default function UpdatePasswordPage() {
   const router = useRouter();
   const { checkUserSession } = useAuthContext();
   const [errorMsg, setErrorMsg] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
@@ -92,12 +95,27 @@ export default function UpdatePasswordPage() {
                 <Label htmlFor="password" className="text-sm font-medium">
                   New Password
                 </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  {...register('password')}
-                  className={errors.password ? 'border-red-500' : ''}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    {...register('password')}
+                    className={errors.password ? 'border-red-500 pr-10' : 'pr-10'}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </div>
                 {errors.password && (
                   <motion.p
                     initial={{ opacity: 0, y: -10 }}
@@ -109,18 +127,30 @@ export default function UpdatePasswordPage() {
                 )}
               </div>
               <div className="space-y-2">
-                <Label
-                  htmlFor="confirm-password"
-                  className="text-sm font-medium"
-                >
+                <Label htmlFor="confirm-password" className="text-sm font-medium">
                   Confirm New Password
                 </Label>
-                <Input
-                  id="confirm-password"
-                  type="password"
-                  {...register('confirmPassword')}
-                  className={errors.confirmPassword ? 'border-red-500' : ''}
-                />
+                <div className="relative">
+                  <Input
+                    id="confirm-password"
+                    type={showConfirmPassword ? "text" : "password"}
+                    {...register('confirmPassword')}
+                    className={errors.confirmPassword ? 'border-red-500 pr-10' : 'pr-10'}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </div>
                 {errors.confirmPassword && (
                   <motion.p
                     initial={{ opacity: 0, y: -10 }}
