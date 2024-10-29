@@ -1,10 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useAuthContext } from '@/auth/hooks';
+import { useRouter } from '@/routes/hooks';
+import { paths } from '@/routes/paths';
 
 interface PaymentProps {
   onNext: (data: any) => void;
@@ -12,16 +15,38 @@ interface PaymentProps {
 }
 
 const Payment: React.FC<PaymentProps> = ({ onNext, onBack }) => {
+  const router = useRouter();
+  const { authenticated, loading } = useAuthContext();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data: any) => {
-    // Here you would typically integrate with Stripe or another payment processor
-    console.log('Payment data:', data);
-    onNext({ paymentDetails: data });
+  useEffect(() => {
+    if (!loading && !authenticated) {
+      router.push(paths.auth.signIn);
+    }
+  }, [authenticated, loading, router]);
+
+  const onSubmit = async (data: any) => {
+    // Get stored customer details
+    const storedDetails = sessionStorage.getItem('customerDetails');
+    const customerDetails = storedDetails ? JSON.parse(storedDetails) : null;
+
+    if (!customerDetails) {
+      router.push('/booking/customer-details');
+      return;
+    }
+
+    // Process payment with combined data
+    onNext({
+      paymentDetails: data,
+      customerDetails,
+    });
+
+    // Clear stored details after successful submission
+    sessionStorage.removeItem('customerDetails');
   };
 
   return (

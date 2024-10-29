@@ -95,7 +95,7 @@ export const signUp = async ({
     email,
     password,
     options: {
-      emailRedirectTo: undefined, 
+      emailRedirectTo: undefined,
       data: {
         display_name: `${firstName} ${lastName}`,
         first_name: firstName,
@@ -149,7 +149,7 @@ export const resendOtp = async ({
     type: 'signup',
     email,
     options: {
-      emailRedirectTo: undefined, 
+      emailRedirectTo: undefined,
     },
   });
 
@@ -353,4 +353,3 @@ export const updateCustomerRecord = async (
 
   return { data: result, error };
 };
-

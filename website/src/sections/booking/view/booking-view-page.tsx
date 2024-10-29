@@ -8,10 +8,13 @@ import VehicleSelection from '@/sections/booking/vehicle-selection';
 import CustomerDetails from '@/sections/booking/customer-details';
 import Payment from '@/sections/booking/payment';
 import BookingSummaryCard from '@/sections/booking/booking-summary-card';
-import { Car, User, CreditCard } from 'lucide-react';
+import { Car, User, CreditCard, LogIn } from 'lucide-react';
+import { useAuthContext } from '@/auth/hooks';
+import { paths } from '@/routes/paths';
 
-const steps = [
+const getSteps = (authenticated: boolean) => [
   { number: '01', icon: Car, label: 'Vehicle' },
+  ...(authenticated ? [] : [{ number: '1.5', icon: LogIn, label: 'Login' }]),
   { number: '02', icon: User, label: 'Details' },
   { number: '03', icon: CreditCard, label: 'Payment' },
 ];
@@ -52,6 +55,8 @@ export function BookingViewPage() {
     initialBookingDetails: null,
     distanceData: null,
   });
+  const { authenticated } = useAuthContext();
+  const steps = getSteps(authenticated);
 
   useEffect(() => {
     const initialBookingDetails = {
@@ -73,12 +78,44 @@ export function BookingViewPage() {
     }));
   }, [searchParams]);
 
+  useEffect(() => {
+    if (currentStep === 1 && !authenticated) {
+      const currentUrl = window.location.pathname + window.location.search;
+      sessionStorage.setItem('bookingReturnUrl', currentUrl);
+    }
+  }, [currentStep, authenticated]);
+
+  useEffect(() => {
+    // Restore customer details if returning from auth
+    const storedDetails = sessionStorage.getItem('customerDetails');
+    if (storedDetails && authenticated) {
+      const parsedDetails = JSON.parse(storedDetails);
+      setBookingData((prev) => ({
+        ...prev,
+        customerDetails: parsedDetails,
+      }));
+      // Optionally clear the stored details
+      // sessionStorage.removeItem('customerDetails');
+    }
+  }, [authenticated]);
+
   const handleNext = (data: Partial<BookingData>) => {
     setBookingData((prev) => ({ ...prev, ...data }));
+
+    if (currentStep === 0 && !authenticated) {
+      // Store vehicle selection
+      sessionStorage.setItem('selectedVehicle', JSON.stringify(data.vehicle));
+      const currentUrl = window.location.pathname + window.location.search;
+      sessionStorage.setItem('bookingReturnUrl', currentUrl);
+      router.push(
+        `${paths.auth.signIn}?returnTo=${encodeURIComponent(currentUrl)}`
+      );
+      return;
+    }
+
     if (currentStep < steps.length - 1) {
       setCurrentStep((prev) => prev + 1);
     } else {
-      // Generate booking reference and redirect to confirmation page
       const bookingReference = generateBookingReference();
       router.push(`/booking/confirmation?ref=${bookingReference}`);
     }
@@ -91,6 +128,19 @@ export function BookingViewPage() {
   const generateBookingReference = () => {
     return 'BK' + Math.random().toString(36).substr(2, 8).toUpperCase();
   };
+
+  // Restore vehicle selection if returning from auth
+  useEffect(() => {
+    const storedVehicle = sessionStorage.getItem('selectedVehicle');
+    if (storedVehicle && authenticated) {
+      const vehicle = JSON.parse(storedVehicle);
+      setBookingData((prev) => ({
+        ...prev,
+        vehicle,
+      }));
+      sessionStorage.removeItem('selectedVehicle');
+    }
+  }, [authenticated]);
 
   return (
     <div className="container mx-auto px-4 py-12">

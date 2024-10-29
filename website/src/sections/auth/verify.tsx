@@ -67,7 +67,15 @@ export default function VerifyPage() {
         token: data.code,
       });
       await checkUserSession?.();
-      router.push(paths.home);
+
+      // Check for stored return URL
+      const returnTo = sessionStorage.getItem('postVerificationReturnUrl');
+      if (returnTo) {
+        sessionStorage.removeItem('postVerificationReturnUrl');
+        router.push(returnTo);
+      } else {
+        router.push(paths.home);
+      }
     } catch (error) {
       console.error(error);
       setErrorMsg(error instanceof Error ? error.message : String(error));

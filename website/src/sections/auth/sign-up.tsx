@@ -4,7 +4,7 @@ import { z as zod } from 'zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from '@/routes/hooks';
+import { useRouter, useSearchParams } from '@/routes/hooks';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -53,6 +53,7 @@ type SignUpSchemaType = zod.infer<typeof SignUpSchema>;
 
 export default function SignupPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { checkUserSession } = useAuthContext();
   const [errorMsg, setErrorMsg] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -85,6 +86,13 @@ export default function SignupPage() {
         phoneNumber: data.phoneNumber,
       });
       await checkUserSession?.();
+
+      // Store return URL in session storage for after verification
+      const returnTo = searchParams.get('returnTo');
+      if (returnTo) {
+        sessionStorage.setItem('postVerificationReturnUrl', returnTo);
+      }
+
       router.push(
         `${paths.auth.verify}?email=${encodeURIComponent(data.email)}`
       );

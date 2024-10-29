@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useAuthContext } from '@/auth/hooks';
+import { paths } from '@/routes/paths';
+import { useRouter } from '@/routes/hooks';
 
 interface CustomerDetailsProps {
   onNext: (data: any) => void;
@@ -33,21 +36,83 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({
   onBack,
   defaultValues = {},
 }) => {
+  const router = useRouter();
+  const { authenticated, user } = useAuthContext();
+  const [bookingType, setBookingType] = useState<'self' | 'other'>('self');
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
+    reset,
   } = useForm({
     defaultValues,
   });
 
+  useEffect(() => {
+    if (bookingType === 'self' && user) {
+      reset({
+        firstName: user.user_metadata.first_name,
+        lastName: user.user_metadata.last_name,
+        email: user.email,
+        phoneNumber: user.user_metadata.phone_number,
+        passengers: undefined,
+        luggage: undefined,
+        flightNumber: '',
+        specialRequests: '',
+      });
+    } else {
+      reset({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phoneNumber: '',
+        passengers: undefined,
+        luggage: undefined,
+        flightNumber: '',
+        specialRequests: '',
+      });
+    }
+  }, [bookingType, user, reset]);
+
   const onSubmit = (data: any) => {
+    sessionStorage.setItem('customerDetails', JSON.stringify(data));
+
+    if (!authenticated) {
+      const currentUrl = window.location.pathname + window.location.search;
+      sessionStorage.setItem('bookingReturnUrl', currentUrl);
+
+      router.push(
+        `${paths.auth.signIn}?returnTo=${encodeURIComponent(currentUrl)}`
+      );
+      return;
+    }
+
     onNext({ customerDetails: data });
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+      <div className="space-y-4">
+        <Label>Booking Type</Label>
+        <div className="flex space-x-4">
+          <Button
+            type="button"
+            variant={bookingType === 'self' ? 'default' : 'outline'}
+            onClick={() => setBookingType('self')}
+          >
+            Booking for Myself
+          </Button>
+          <Button
+            type="button"
+            variant={bookingType === 'other' ? 'default' : 'outline'}
+            onClick={() => setBookingType('other')}
+          >
+            Booking for Someone Else
+          </Button>
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="firstName">First Name</Label>

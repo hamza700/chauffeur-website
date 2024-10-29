@@ -4,7 +4,7 @@ import { z as zod } from 'zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from '@/routes/hooks';
+import { useRouter, useSearchParams } from '@/routes/hooks';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -42,9 +42,11 @@ export type SignInSchemaType = zod.infer<typeof SignInSchema>;
 
 export default function SignInPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { checkUserSession } = useAuthContext();
   const [errorMsg, setErrorMsg] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const methods = useForm<SignInSchemaType>({
     resolver: zodResolver(SignInSchema),
@@ -62,10 +64,23 @@ export default function SignInPage() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
+      setIsRedirecting(true);
       await signInWithPassword({ email: data.email, password: data.password });
       await checkUserSession?.();
-      router.refresh();
+
+      const returnTo =
+        searchParams.get('returnTo') ||
+        sessionStorage.getItem('bookingReturnUrl');
+
+      if (returnTo) {
+        sessionStorage.removeItem('bookingReturnUrl');
+        const decodedUrl = decodeURIComponent(returnTo);
+        router.push(decodedUrl);
+      } else {
+        router.push(paths.home);
+      }
     } catch (error) {
+      setIsRedirecting(false);
       console.error(error);
       if (error instanceof Error) {
         setErrorMsg(error.message);
@@ -162,9 +177,13 @@ export default function SignInPage() {
               <Button
                 type="submit"
                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isRedirecting}
               >
-                {isSubmitting ? 'Signing in...' : 'Sign In'}
+                {isRedirecting
+                  ? 'Redirecting...'
+                  : isSubmitting
+                  ? 'Signing in...'
+                  : 'Sign In'}
               </Button>
             </form>
             {errorMsg && (
@@ -185,7 +204,9 @@ export default function SignInPage() {
             <p className="text-center text-sm text-muted-foreground w-full">
               Don&apos;t have an account?{' '}
               <Link
-                href={paths.auth.signUp}
+                href={`${paths.auth.signUp}?returnTo=${encodeURIComponent(
+                  searchParams.get('returnTo') || ''
+                )}`}
                 className="text-primary hover:underline font-medium"
               >
                 Sign up

@@ -3,7 +3,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Menu, X, BadgeCheck, CreditCard, LogOut, Router } from 'lucide-react';
+import { Menu, X, BadgeCheck, CreditCard, LogOut } from 'lucide-react';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -31,7 +31,6 @@ import { signOut } from '@/auth/context/supabase';
 import { paths } from '@/routes/paths';
 import { useRouter } from '@/routes/hooks';
 
-
 function Header() {
   const { user, checkUserSession } = useAuthContext();
   const router = useRouter();
@@ -39,6 +38,8 @@ function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -54,9 +55,28 @@ function Header() {
   }, []);
 
   const handleSignOut = async () => {
-    await signOut();
-    await checkUserSession?.();
-    router.refresh();
+    try {
+      setIsSigningOut(true);
+
+      // Perform sign out
+      await signOut();
+
+      // Ensure checkUserSession exists
+      if (!checkUserSession) {
+        throw new Error('User session check not available');
+      }
+
+      // Update auth state
+      await checkUserSession();
+
+      // Force a hard navigation instead of just refresh
+      router.push(paths.home);
+    } catch (error) {
+      console.error('Sign out error:', error);
+      // Optionally add toast notification here
+    } finally {
+      setIsSigningOut(false);
+    }
   };
 
   return (
@@ -119,18 +139,32 @@ function Header() {
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                <Button
+                  variant="ghost"
+                  className="relative h-10 w-10 rounded-full"
+                >
                   <Avatar className="h-10 w-10 rounded-full">
-                    <AvatarImage src={user.user_metadata?.avatar_url || '/default-avatar.png'} alt={user.user_metadata?.display_name || 'User'} />
-                    <AvatarFallback>{user.user_metadata?.display_name?.[0] || 'U'}</AvatarFallback>
+                    <AvatarImage
+                      src={
+                        user.user_metadata?.avatar_url || '/default-avatar.png'
+                      }
+                      alt={user.user_metadata?.display_name || 'User'}
+                    />
+                    <AvatarFallback>
+                      {user.user_metadata?.display_name?.[0] || 'U'}
+                    </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user.user_metadata?.display_name || 'User'}</p>
-                    <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                    <p className="text-sm font-medium leading-none">
+                      {user.user_metadata?.display_name || 'User'}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user.email}
+                    </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -149,9 +183,12 @@ function Header() {
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut}>
+                <DropdownMenuItem
+                  onClick={handleSignOut}
+                  disabled={isSigningOut}
+                >
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
+                  <span>{isSigningOut ? 'Signing out...' : 'Log out'}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -218,9 +255,10 @@ function Header() {
               </Link>
               <button
                 onClick={handleSignOut}
-                className="block w-full text-left py-2 text-white hover:text-gray-300 font-medium"
+                disabled={isSigningOut}
+                className="block w-full text-left py-2 text-white hover:text-gray-300 font-medium disabled:opacity-50"
               >
-                Sign Out
+                {isSigningOut ? 'Signing out...' : 'Sign Out'}
               </button>
             </>
           ) : (

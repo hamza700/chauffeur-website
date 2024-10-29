@@ -19,6 +19,7 @@
     "sections": "@/sections",
     "auth": "@/auth",
     "routes": "@/routes",
-    "utilities": "@/utilities"
+    "utilities": "@/utilities",
+    "actions": "@/actions"
   }
 }
