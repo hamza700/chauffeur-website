@@ -3,6 +3,7 @@ import '../globals.css';
 import Header from '@/sections/header/header';
 import Footer from '@/sections/footer/footer';
 import { AuthProvider as SupabaseAuthProvider } from '@/auth/context/supabase';
+import { Toaster } from "@/components/ui/toaster"
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -37,6 +38,7 @@ export default function RootLayout({
           <main className="flex-grow">{children}</main>
           <Footer />
         </AuthProvider>
+        <Toaster />
       </body>
     </html>
   );

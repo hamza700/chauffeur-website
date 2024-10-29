@@ -162,23 +162,40 @@ export const updatePassword = async ({
 };
 
 /** **************************************
- * Insert customer record
+ * Update user metadata
  *************************************** */
-export const insertCustomerRecord = async (
-  user: User
-): Promise<{ data: any[] | null; error: PostgrestError | null }> => {
-  const { data, error } = await supabase
-    .from('customers')
-    .insert([
-      {
-        id: user.id,
-        email: user.email,
-        first_name: user.user_metadata.first_name,
-        last_name: user.user_metadata.last_name,
-        phone_number: user.user_metadata.phone_number,
-      },
-    ])
-    .select();
+interface UpdateUserMetadataParams {
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+}
+
+export const updateUserMetadata = async ({
+  firstName,
+  lastName,
+  phoneNumber,
+}: UpdateUserMetadataParams): Promise<UserResponse> => {
+  const { data: currentUser } = await supabase.auth.getUser();
+
+  if (!currentUser.user) throw new Error('No user found');
+
+  const currentMetadata = currentUser.user.user_metadata;
+
+  const { data, error } = await supabase.auth.updateUser({
+    data: {
+      ...currentMetadata,
+      ...(firstName && { first_name: firstName }),
+      ...(lastName && { last_name: lastName }),
+      ...(phoneNumber && { phone_number: phoneNumber }),
+      ...(firstName || lastName
+        ? {
+            display_name: `${firstName || currentMetadata.first_name} ${
+              lastName || currentMetadata.last_name
+            }`,
+          }
+        : {}),
+    },
+  });
 
   if (error) {
     console.error(error);
@@ -198,6 +215,33 @@ export const addUserRole = async (
   const { data, error } = await supabase
     .from('user_roles')
     .insert([{ user_id: userId, role }])
+    .select();
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
+  return { data, error };
+};
+
+/** **************************************
+ * Insert customer record
+ *************************************** */
+export const insertCustomerRecord = async (
+  user: User
+): Promise<{ data: any[] | null; error: PostgrestError | null }> => {
+  const { data, error } = await supabase
+    .from('customers')
+    .insert([
+      {
+        id: user.id,
+        email: user.email,
+        first_name: user.user_metadata.first_name,
+        last_name: user.user_metadata.last_name,
+        phone_number: user.user_metadata.phone_number,
+      },
+    ])
     .select();
 
   if (error) {

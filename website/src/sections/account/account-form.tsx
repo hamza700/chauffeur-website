@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { motion } from 'framer-motion';
 import { parsePhoneNumber } from 'react-phone-number-input';
+import { ReloadIcon } from '@radix-ui/react-icons';
 
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -30,6 +31,7 @@ import { Edit2, Lock } from 'lucide-react';
 import {
   getCustomerRecord,
   updateCustomerRecord,
+  updateUserMetadata,
 } from '@/auth/context/supabase/action';
 import { PhoneInput } from '@/sections/phone/phone-input';
 import { useAuthContext } from '@/auth/hooks';
@@ -54,6 +56,7 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export function AccountForm() {
   const [isEditing, setIsEditing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuthContext();
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -106,6 +109,7 @@ export function AccountForm() {
 
   async function onSubmit(data: ProfileFormValues) {
     if (!user?.id) return;
+    setIsSubmitting(true);
 
     try {
       // Ensure phone number is in E.164 format before saving
@@ -119,6 +123,12 @@ export function AccountForm() {
         console.warn('Could not parse phone number:', e);
       }
 
+      await updateUserMetadata({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phoneNumber: formattedPhoneNumber,
+      });
+
       const mappedData = {
         first_name: data.firstName,
         last_name: data.lastName,
@@ -131,7 +141,8 @@ export function AccountForm() {
       toast({
         title: 'Profile updated successfully',
         description: 'Your changes have been saved.',
-        className: 'top-0 right-0 fixed',
+        variant: 'success',
+        duration: 3000,
       });
       setIsEditing(false);
     } catch (error) {
@@ -140,8 +151,10 @@ export function AccountForm() {
         title: 'Error',
         description: 'Failed to update your profile.',
         variant: 'destructive',
-        className: 'top-0 right-0 fixed',
+        duration: 5000,
       });
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -261,8 +274,19 @@ export function AccountForm() {
                   )}
                 />
                 {isEditing && (
-                  <Button type="submit" className="w-full">
-                    Save Changes
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                        Saving changes...
+                      </>
+                    ) : (
+                      'Save Changes'
+                    )}
                   </Button>
                 )}
               </form>

@@ -149,11 +149,12 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({
           </div>
 
           <div className="col-span-2">
-            <Label htmlFor="flightNumber">Flight Number (Optional)</Label>
+            <Label htmlFor="flightNumber">Flight Number</Label>
             <Input
               id="flightNumber"
               placeholder="e.g., BA1234"
               {...register('flightNumber', {
+                required: 'Flight number is required',
                 pattern: {
                   value: /^[A-Z0-9]{2,8}$/i,
                   message: 'Please enter a valid flight number',

@@ -28,6 +28,7 @@ import {
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLoadScript, Autocomplete } from '@react-google-maps/api';
+import { ReloadIcon } from "@radix-ui/react-icons"
 
 interface Location {
   address: string;
@@ -94,18 +95,28 @@ export function BookingComponent() {
     []
   );
 
-  const handleSearch = (e: React.FormEvent) => {
+  const [isSearching, setIsSearching] = useState(false);
+
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    const queryParams = new URLSearchParams({
-      ...formData,
-      type: activeTab,
-      date: date ? date.toISOString() : '',
-      ...(distanceData && {
-        distance: distanceData.distance,
-        estimatedDuration: distanceData.estimatedDuration,
-      }),
-    }).toString();
-    router.push(`/booking?${queryParams}`);
+    setIsSearching(true);
+    
+    try {
+      const queryParams = new URLSearchParams({
+        ...formData,
+        type: activeTab,
+        date: date ? date.toISOString() : '',
+        ...(distanceData && {
+          distance: distanceData.distance,
+          estimatedDuration: distanceData.estimatedDuration,
+        }),
+      }).toString();
+      
+      await router.push(`/booking?${queryParams}`);
+    } catch (error) {
+      console.error('Navigation error:', error);
+      setIsSearching(false);
+    }
   };
 
   const handlePlaceSelect = useCallback(
@@ -223,6 +234,12 @@ export function BookingComponent() {
     ),
     [formData, handleInputChange, handlePlaceSelect]
   );
+
+  useEffect(() => {
+    return () => {
+      setIsSearching(false);
+    };
+  }, []);
 
   if (loadError) {
     return (
@@ -391,9 +408,17 @@ export function BookingComponent() {
               </Select>
               <Button
                 type="submit"
+                disabled={isSearching}
                 className="w-full sm:w-auto py-6 px-8 rounded-lg bg-primary hover:bg-primary/90 text-white font-semibold transition-colors duration-300"
               >
-                Search
+                {isSearching ? (
+                  <>
+                    <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                    Searching
+                  </>
+                ) : (
+                  'Search'
+                )}
               </Button>
             </form>
           </motion.div>
