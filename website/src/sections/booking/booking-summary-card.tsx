@@ -7,7 +7,16 @@ import {
   CardFooter,
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { MapPin, Calendar, Clock, Users, Briefcase } from 'lucide-react';
+import {
+  MapPin,
+  Calendar,
+  Clock,
+  Users,
+  Briefcase,
+  Phone,
+  Plane,
+  MessageCircle,
+} from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface BookingSummaryCardProps {
@@ -17,8 +26,11 @@ interface BookingSummaryCardProps {
       firstName: string;
       lastName: string;
       email: string;
+      phoneNumber: string;
       passengers: number;
       luggage: number;
+      flightNumber: string;
+      specialRequests: string | null;
     } | null;
     initialBookingDetails: {
       type: string | null;
@@ -40,6 +52,8 @@ const BookingSummaryCard: React.FC<BookingSummaryCardProps> = ({
 }) => {
   const { customerDetails, initialBookingDetails, distanceData, vehicle } =
     bookingData;
+
+  console.log(bookingData);
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
@@ -174,6 +188,14 @@ const BookingSummaryCard: React.FC<BookingSummaryCardProps> = ({
                     </li>
                     <li className="flex items-center justify-between">
                       <span className="flex items-center text-gray-600">
+                        <Phone className="w-4 h-4 mr-2" /> Phone Number
+                      </span>
+                      <span className="font-medium">
+                        {customerDetails.phoneNumber}
+                      </span>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span className="flex items-center text-gray-600">
                         <Users className="w-4 h-4 mr-2" /> Passengers
                       </span>
                       <span className="font-medium">
@@ -186,6 +208,23 @@ const BookingSummaryCard: React.FC<BookingSummaryCardProps> = ({
                       </span>
                       <span className="font-medium">
                         {customerDetails.luggage}
+                      </span>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span className="flex items-center text-gray-600">
+                        <Plane className="w-4 h-4 mr-2" /> Flight Number
+                      </span>
+                      <span className="font-medium">
+                        {customerDetails.flightNumber}
+                      </span>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span className="flex items-center text-gray-600">
+                        <MessageCircle className="w-4 h-4 mr-2" /> Special
+                        Requests
+                      </span>
+                      <span className="font-medium">
+                        {customerDetails.specialRequests || 'N/A'}
                       </span>
                     </li>
                   </ul>

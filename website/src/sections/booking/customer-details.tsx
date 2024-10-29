@@ -16,17 +16,31 @@ import {
 interface CustomerDetailsProps {
   onNext: (data: any) => void;
   onBack: () => void;
+  defaultValues?: {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phoneNumber?: string;
+    passengers?: number;
+    luggage?: number;
+    flightNumber?: string;
+    specialRequests?: string;
+  };
 }
 
 const CustomerDetails: React.FC<CustomerDetailsProps> = ({
   onNext,
   onBack,
+  defaultValues = {},
 }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+    setValue,
+  } = useForm({
+    defaultValues,
+  });
 
   const onSubmit = (data: any) => {
     onNext({ customerDetails: data });
@@ -82,14 +96,16 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({
         </div>
 
         <div>
-          <Label htmlFor="phone">Phone Number</Label>
+          <Label htmlFor="phoneNumber">Phone Number</Label>
           <Input
-            id="phone"
-            {...register('phone', { required: 'Phone number is required' })}
+            id="phoneNumber"
+            {...register('phoneNumber', {
+              required: 'Phone number is required',
+            })}
           />
-          {errors.phone && (
+          {errors.phoneNumber && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.phone.message as string}
+              {errors.phoneNumber.message as string}
             </p>
           )}
         </div>
@@ -101,9 +117,10 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({
           <div>
             <Label htmlFor="passengers">Total Passengers</Label>
             <Select
-              onValueChange={(value) =>
-                register('passengers').onChange({ target: { value } })
-              }
+              defaultValue={defaultValues?.passengers?.toString()}
+              onValueChange={(value) => {
+                setValue('passengers', parseInt(value));
+              }}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select passengers" />
@@ -126,9 +143,10 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({
           <div>
             <Label htmlFor="luggage">Total Luggage</Label>
             <Select
-              onValueChange={(value) =>
-                register('luggage').onChange({ target: { value } })
-              }
+              defaultValue={defaultValues?.luggage?.toString()}
+              onValueChange={(value) => {
+                setValue('luggage', parseInt(value));
+              }}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select luggage" />

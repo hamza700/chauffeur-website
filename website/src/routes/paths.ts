@@ -23,7 +23,8 @@ export const paths = {
     signUp: '/auth/sign-up',
     resetPassword: '/auth/reset-password',
     updatePassword: '/auth/update-password',
-    confirmation: '/auth/confirmation',
+    // confirmation: '/auth/confirmation',
+    verify: '/auth/verify',
   },
   privacy: {
     root: '/privacy-policy',

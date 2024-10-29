@@ -334,7 +334,7 @@ Supabase will replace Clerk for authentication and will handle database function
 4. **Modify Booking Process**
 
    - **components/booking/customer-details.tsx**:
-     - After the user enters their customer information, redirect them to the authentication step.
+     - Before the user enters their customer information, check if signed in if not redirect them to the authentication step.
      - Store the customer information temporarily (e.g., in local state or session storage) to use after authentication.
    - **Authentication Step**:
      - Ensure that after login or signup, the user is redirected back to the booking process.

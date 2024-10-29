@@ -427,5 +427,5 @@ export function BookingComponent() {
     </motion.div>
   );
 }
-
 export default BookingComponent;
+

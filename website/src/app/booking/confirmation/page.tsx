@@ -16,6 +16,11 @@ export default function BookingConfirmationPage() {
       firstName: 'John',
       lastName: 'Doe',
       email: 'john.doe@example.com',
+      passengers: 2,
+      luggage: 2,
+      phoneNumber: '1234567890',
+      flightNumber: '1234567890',
+      specialRequests: 'No special requests',
     },
     initialBookingDetails: {
       type: 'oneWay',

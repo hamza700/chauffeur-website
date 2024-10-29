@@ -27,6 +27,11 @@ interface ConfirmationPageProps {
       firstName: string;
       lastName: string;
       email: string;
+      phoneNumber: string;
+      passengers: number;
+      luggage: number;
+      flightNumber: string;
+      specialRequests?: string;
     };
     initialBookingDetails: {
       type: string;
@@ -44,7 +49,7 @@ const ConfirmationPage: React.FC<ConfirmationPageProps> = ({
   bookingData,
   isSignedIn,
 }) => {
-  const { bookingReference, vehicle, customerDetails, initialBookingDetails } =
+  const { bookingReference, vehicle, initialBookingDetails } =
     bookingData;
 
   const formatDate = (dateString: string) => {

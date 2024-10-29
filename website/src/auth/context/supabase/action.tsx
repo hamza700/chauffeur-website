@@ -47,6 +47,15 @@ export type UpdatePasswordParams = {
   };
 };
 
+export type VerifyOtpParams = {
+  email: string;
+  token: string;
+};
+
+export type ResendOtpParams = {
+  email: string;
+};
+
 /** **************************************
  * Sign in
  *************************************** */
@@ -86,7 +95,7 @@ export const signUp = async ({
     email,
     password,
     options: {
-      emailRedirectTo: `${window.location.origin}${paths.home}`,
+      emailRedirectTo: undefined, 
       data: {
         display_name: `${firstName} ${lastName}`,
         first_name: firstName,
@@ -104,6 +113,49 @@ export const signUp = async ({
 
   if (!data?.user?.identities?.length) {
     throw new Error('This user already exists');
+  }
+
+  return { data, error };
+};
+
+/** **************************************
+ * Verify OTP
+ *************************************** */
+export const verifyOtp = async ({
+  email,
+  token,
+}: VerifyOtpParams): Promise<AuthResponse> => {
+  const { data, error } = await supabase.auth.verifyOtp({
+    email,
+    token,
+    type: 'signup',
+  });
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
+  return { data, error };
+};
+
+/** **************************************
+ * Resend OTP
+ *************************************** */
+export const resendOtp = async ({
+  email,
+}: ResendOtpParams): Promise<AuthResponse> => {
+  const { data, error } = await supabase.auth.resend({
+    type: 'signup',
+    email,
+    options: {
+      emailRedirectTo: undefined, 
+    },
+  });
+
+  if (error) {
+    console.error(error);
+    throw error;
   }
 
   return { data, error };
@@ -301,3 +353,4 @@ export const updateCustomerRecord = async (
 
   return { data: result, error };
 };
+

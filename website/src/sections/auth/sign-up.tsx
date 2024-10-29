@@ -85,7 +85,9 @@ export default function SignupPage() {
         phoneNumber: data.phoneNumber,
       });
       await checkUserSession?.();
-      router.push(paths.auth.confirmation);
+      router.push(
+        `${paths.auth.verify}?email=${encodeURIComponent(data.email)}`
+      );
     } catch (error) {
       console.error(error);
       setErrorMsg(error instanceof Error ? error.message : String(error));

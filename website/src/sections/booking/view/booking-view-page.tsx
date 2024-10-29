@@ -22,8 +22,11 @@ interface BookingData {
     firstName: string;
     lastName: string;
     email: string;
+    phoneNumber: string;
     passengers: number;
     luggage: number;
+    flightNumber: string;
+    specialRequests: string | null;
   } | null;
   initialBookingDetails: {
     type: string | null;
@@ -160,7 +163,11 @@ export function BookingViewPage() {
             >
               {currentStep === 0 && <VehicleSelection onNext={handleNext} />}
               {currentStep === 1 && (
-                <CustomerDetails onNext={handleNext} onBack={handleBack} />
+                <CustomerDetails
+                  onNext={handleNext}
+                  onBack={handleBack}
+                  defaultValues={bookingData.customerDetails}
+                />
               )}
               {currentStep === 2 && (
                 <Payment onNext={handleNext} onBack={handleBack} />
