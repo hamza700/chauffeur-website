@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useAuthContext } from '@/auth/hooks';
 import { useRouter } from '@/routes/hooks';
 import { paths } from '@/routes/paths';
+import { useBooking } from '@/context/booking/booking-context';
 
 interface PaymentProps {
   onNext: (data: any) => void;
@@ -15,6 +16,7 @@ interface PaymentProps {
 }
 
 const Payment: React.FC<PaymentProps> = ({ onNext, onBack }) => {
+  const { state, dispatch } = useBooking();
   const router = useRouter();
   const { authenticated, loading } = useAuthContext();
   const {
@@ -30,20 +32,13 @@ const Payment: React.FC<PaymentProps> = ({ onNext, onBack }) => {
   }, [authenticated, loading, router]);
 
   const onSubmit = async (data: any) => {
-    // Get stored customer details
-    const storedDetails = sessionStorage.getItem('customerDetails');
-    const customerDetails = storedDetails ? JSON.parse(storedDetails) : null;
-
-    if (!customerDetails) {
-      router.push('/booking/customer-details');
-      return;
-    }
-
-    // Process payment with combined data
-    onNext({
-      paymentDetails: data,
-      customerDetails,
+    // This will be replaced with Stripe checkout session creation
+    dispatch({
+      type: 'SET_PAYMENT_STATUS',
+      payload: { status: 'processing' },
     });
+
+    onNext({ paymentDetails: { status: 'completed' } });
 
     // Clear stored details after successful submission
     sessionStorage.removeItem('customerDetails');

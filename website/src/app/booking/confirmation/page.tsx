@@ -1,35 +1,13 @@
 'use client';
 
 import React from 'react';
-import { useSearchParams } from 'next/navigation';
 import ConfirmationPage from '@/sections/booking/confirmation-page';
+import { BookingGuard } from '@/auth/guard/booking-guard';
 
 export default function BookingConfirmationPage() {
-  const searchParams = useSearchParams();
-  const bookingReference = searchParams.get('ref');
-
-  // In a real application, you would fetch the booking details using the reference
-  const mockBookingData = {
-    bookingReference: bookingReference || 'Unknown',
-    vehicle: 'Business Class',
-    customerDetails: {
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john.doe@example.com',
-      passengers: 2,
-      luggage: 2,
-      phoneNumber: '1234567890',
-      flightNumber: '1234567890',
-      specialRequests: 'No special requests',
-    },
-    initialBookingDetails: {
-      type: 'oneWay',
-      pickupLocation: 'Airport',
-      dropoffLocation: 'Hotel',
-      date: '2023-06-01',
-      time: '14:00',
-    },
-  };
-
-  return <ConfirmationPage bookingData={mockBookingData} />;
+  return (
+    <BookingGuard requireReference={true}>
+      <ConfirmationPage />;
+    </BookingGuard>
+  );
 }

@@ -15,6 +15,7 @@ import {
 import { useAuthContext } from '@/auth/hooks';
 import { paths } from '@/routes/paths';
 import { useRouter } from '@/routes/hooks';
+import { useBooking } from '@/context/booking/booking-context';
 
 interface CustomerDetailsProps {
   onNext: (data: any) => void;
@@ -48,6 +49,7 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({
   } = useForm({
     defaultValues,
   });
+  const { dispatch } = useBooking();
 
   useEffect(() => {
     if (bookingType === 'self' && user) {
@@ -76,8 +78,6 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({
   }, [bookingType, user, reset]);
 
   const onSubmit = (data: any) => {
-    sessionStorage.setItem('customerDetails', JSON.stringify(data));
-
     if (!authenticated) {
       const currentUrl = window.location.pathname + window.location.search;
       sessionStorage.setItem('bookingReturnUrl', currentUrl);
@@ -88,6 +88,7 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({
       return;
     }
 
+    dispatch({ type: 'SET_CUSTOMER_DETAILS', payload: data });
     onNext({ customerDetails: data });
   };
 

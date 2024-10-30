@@ -11,6 +11,7 @@ import BookingSummaryCard from '@/sections/booking/booking-summary-card';
 import { Car, User, CreditCard, LogIn } from 'lucide-react';
 import { useAuthContext } from '@/auth/hooks';
 import { paths } from '@/routes/paths';
+import { useBooking } from '@/context/booking/booking-context';
 
 const getSteps = (authenticated: boolean) => [
   { number: '01', icon: Car, label: 'Vehicle' },
@@ -43,18 +44,16 @@ interface BookingData {
     distance: string | null;
     estimatedDuration: string | null;
   } | null;
+  paymentDetails?: {
+    status: 'processing' | 'completed' | 'failed';
+  };
 }
 
 export function BookingViewPage() {
+  const { state, dispatch } = useBooking();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(0);
-  const [bookingData, setBookingData] = useState<BookingData>({
-    vehicle: null,
-    customerDetails: null,
-    initialBookingDetails: null,
-    distanceData: null,
-  });
   const { authenticated } = useAuthContext();
   const steps = getSteps(authenticated);
 
@@ -71,12 +70,10 @@ export function BookingViewPage() {
       distance: searchParams.get('distance'),
       estimatedDuration: searchParams.get('estimatedDuration'),
     };
-    setBookingData((prev) => ({
-      ...prev,
-      initialBookingDetails,
-      distanceData,
-    }));
-  }, [searchParams]);
+
+    dispatch({ type: 'SET_INITIAL_DETAILS', payload: initialBookingDetails });
+    dispatch({ type: 'SET_DISTANCE_DATA', payload: distanceData });
+  }, [searchParams, dispatch]);
 
   useEffect(() => {
     if (currentStep === 1 && !authenticated) {
@@ -90,17 +87,25 @@ export function BookingViewPage() {
     const storedDetails = sessionStorage.getItem('customerDetails');
     if (storedDetails && authenticated) {
       const parsedDetails = JSON.parse(storedDetails);
-      setBookingData((prev) => ({
-        ...prev,
-        customerDetails: parsedDetails,
-      }));
+      dispatch({ type: 'SET_CUSTOMER_DETAILS', payload: parsedDetails });
       // Optionally clear the stored details
       // sessionStorage.removeItem('customerDetails');
     }
   }, [authenticated]);
 
   const handleNext = (data: Partial<BookingData>) => {
-    setBookingData((prev) => ({ ...prev, ...data }));
+    if (data.vehicle) {
+      dispatch({ type: 'SET_VEHICLE', payload: data.vehicle });
+    }
+    if (data.customerDetails) {
+      dispatch({ type: 'SET_CUSTOMER_DETAILS', payload: data.customerDetails });
+    }
+    if (data.paymentDetails) {
+      const bookingReference = generateBookingReference();
+      dispatch({ type: 'SET_BOOKING_REFERENCE', payload: bookingReference });
+      router.push(`/booking/confirmation?ref=${bookingReference}`);
+      return;
+    }
 
     if (currentStep === 0 && !authenticated) {
       // Store vehicle selection
@@ -115,9 +120,6 @@ export function BookingViewPage() {
 
     if (currentStep < steps.length - 1) {
       setCurrentStep((prev) => prev + 1);
-    } else {
-      const bookingReference = generateBookingReference();
-      router.push(`/booking/confirmation?ref=${bookingReference}`);
     }
   };
 
@@ -134,10 +136,7 @@ export function BookingViewPage() {
     const storedVehicle = sessionStorage.getItem('selectedVehicle');
     if (storedVehicle && authenticated) {
       const vehicle = JSON.parse(storedVehicle);
-      setBookingData((prev) => ({
-        ...prev,
-        vehicle,
-      }));
+      dispatch({ type: 'SET_VEHICLE', payload: vehicle });
       sessionStorage.removeItem('selectedVehicle');
     }
   }, [authenticated]);
@@ -216,7 +215,7 @@ export function BookingViewPage() {
                 <CustomerDetails
                   onNext={handleNext}
                   onBack={handleBack}
-                  defaultValues={bookingData.customerDetails}
+                  defaultValues={state.customerDetails}
                 />
               )}
               {currentStep === 2 && (
@@ -227,7 +226,7 @@ export function BookingViewPage() {
         </div>
 
         <div className="lg:w-1/3">
-          <BookingSummaryCard bookingData={bookingData} />
+          <BookingSummaryCard bookingData={state} />
         </div>
       </div>
     </div>

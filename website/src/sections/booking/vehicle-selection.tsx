@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Users, Briefcase, Award, Ban, Clock, Shield } from 'lucide-react';
+import { useBooking } from '@/context/booking/booking-context';
 
 interface VehicleSelectionProps {
   onNext: (data: { vehicle: string }) => void;
@@ -43,6 +44,13 @@ const vehicles = [
 ];
 
 function VehicleSelection({ onNext }: VehicleSelectionProps) {
+  const { dispatch } = useBooking();
+
+  const handleSelect = (vehicleId: string) => {
+    dispatch({ type: 'SET_VEHICLE', payload: vehicleId });
+    onNext({ vehicle: vehicleId });
+  };
+
   return (
     <div className="space-y-8">
       <h2 className="text-3xl font-bold text-gray-800">Select Your Vehicle</h2>
@@ -95,7 +103,7 @@ function VehicleSelection({ onNext }: VehicleSelectionProps) {
                 <div className="p-6 pt-0">
                   <Button
                     className="w-full bg-primary hover:bg-primary/90 text-white"
-                    onClick={() => onNext({ vehicle: vehicle.id })}
+                    onClick={() => handleSelect(vehicle.id)}
                   >
                     Select <span className="ml-2">→</span>
                   </Button>

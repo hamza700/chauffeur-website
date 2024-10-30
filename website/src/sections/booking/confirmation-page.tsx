@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import {
@@ -9,50 +11,24 @@ import {
   Users,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import Image from 'next/image';
 import { paths } from '@/routes/paths';
+import { useBooking } from '@/context/booking/booking-context';
+import { useAuthContext } from '@/auth/hooks';
+import { useSearchParams } from 'next/navigation';
 
-interface ConfirmationPageProps {
-  bookingData: {
-    bookingReference: string;
-    vehicle: string;
-    customerDetails: {
-      firstName: string;
-      lastName: string;
-      email: string;
-      phoneNumber: string;
-      passengers: number;
-      luggage: number;
-      flightNumber: string;
-      specialRequests?: string;
-    };
-    initialBookingDetails: {
-      type: string;
-      pickupLocation: string;
-      dropoffLocation?: string;
-      date: string;
-      time: string;
-      duration?: string;
-    };
-  };
-  isSignedIn: boolean;
-}
+const ConfirmationPage = () => {
+  const { state } = useBooking();
+  const { authenticated } = useAuthContext();
+  const searchParams = useSearchParams();
+  const bookingRef = searchParams.get('ref');
 
-const ConfirmationPage: React.FC<ConfirmationPageProps> = ({
-  bookingData,
-  isSignedIn,
-}) => {
-  const { bookingReference, vehicle, initialBookingDetails } =
-    bookingData;
+  const { vehicle, initialBookingDetails, bookingReference } = state;
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'N/A';
     const date = new Date(dateString);
     return date.toLocaleDateString('en-GB', {
       day: '2-digit',
@@ -61,11 +37,12 @@ const ConfirmationPage: React.FC<ConfirmationPageProps> = ({
     });
   };
 
-  const getVehicleImageName = (vehicle: string) => {
+  const getVehicleImageName = (vehicle: string | null) => {
+    if (!vehicle) return 'default-vehicle';
     switch (vehicle.toLowerCase()) {
-      case 'business class':
+      case 'business':
         return 'business-class';
-      case 'first class':
+      case 'first':
         return 'first-class';
       case 'van/suv':
         return 'van-suv';
@@ -73,6 +50,15 @@ const ConfirmationPage: React.FC<ConfirmationPageProps> = ({
         return 'default-vehicle';
     }
   };
+
+  // Verify booking reference matches
+  if (bookingRef !== bookingReference) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl text-red-500">Invalid booking reference</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-16 px-4 sm:px-6 lg:px-8">
@@ -222,7 +208,7 @@ const ConfirmationPage: React.FC<ConfirmationPageProps> = ({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.9 }}
         >
-          {isSignedIn ? (
+          {authenticated ? (
             <Link href={paths.manageBookings.root} passHref>
               <Button className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white">
                 Manage Booking

@@ -20,6 +20,7 @@
     "auth": "@/auth",
     "routes": "@/routes",
     "utilities": "@/utilities",
-    "actions": "@/actions"
+    "actions": "@/actions",
+    "context": "@/context"
   }
 }

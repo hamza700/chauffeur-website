@@ -18,33 +18,10 @@ import {
   MessageCircle,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { BookingState } from '@/context/booking/booking-context';
 
 interface BookingSummaryCardProps {
-  bookingData: {
-    vehicle: string | null;
-    customerDetails: {
-      firstName: string;
-      lastName: string;
-      email: string;
-      phoneNumber: string;
-      passengers: number;
-      luggage: number;
-      flightNumber: string;
-      specialRequests: string | null;
-    } | null;
-    initialBookingDetails: {
-      type: string | null;
-      pickupLocation: string | null;
-      dropoffLocation: string | null;
-      date: string | null;
-      time: string | null;
-      duration: string | null;
-    } | null;
-    distanceData: {
-      distance: string | null;
-      estimatedDuration: string | null;
-    } | null;
-  };
+  bookingData: BookingState;
 }
 
 const BookingSummaryCard: React.FC<BookingSummaryCardProps> = ({
