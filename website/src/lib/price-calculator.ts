@@ -1,0 +1,125 @@
+interface PriceCalculatorParams {
+  distance: number; // in kilometers
+  vehicleClass: 'Business' | 'First' | 'Van';
+  isAirportTransfer: boolean;
+  pickupTime: string; // 24-hour format "HH:mm"
+}
+
+interface DistanceBand {
+  rate: number;
+  distance: number;
+}
+
+// Constants as per booking-function.md
+const BASE_FARE = 30.0;
+const AIRPORT_FEE = 10.0;
+const PEAK_SURCHARGE = 0.1; // 10%
+
+const DISTANCE_BANDS: DistanceBand[] = [
+  { rate: 3.0, distance: 10 }, // Band 1: 0-10 KM
+  { rate: 2.0, distance: 30 }, // Band 2: 10-40 KM
+  { rate: 1.5, distance: Infinity }, // Band 3: 40+ KM
+];
+
+const CLASS_MULTIPLIERS = {
+  business: 1.0,
+  first: 1.3,
+  van: {
+    base: 1.4,
+    ratePerKm: 0.002,
+    maxMultiplier: 1.9,
+  },
+};
+
+function isPeakHour(time: string): boolean {
+  const hour = parseInt(time.split(':')[0], 10);
+  return hour >= 6 && hour < 13;
+}
+
+function calculateVanMultiplier(distance: number): number {
+  const multiplier =
+    CLASS_MULTIPLIERS.van.base + CLASS_MULTIPLIERS.van.ratePerKm * distance;
+  return Math.min(multiplier, CLASS_MULTIPLIERS.van.maxMultiplier);
+}
+
+function calculatePerKilometerCharges(distance: number): number {
+  let remainingDistance = distance;
+  let totalCharge = 0;
+  let processedDistance = 0;
+
+  for (const band of DISTANCE_BANDS) {
+    const distanceInBand = Math.min(
+      remainingDistance,
+      band.distance - processedDistance
+    );
+
+    if (distanceInBand > 0) {
+      totalCharge += distanceInBand * band.rate;
+      remainingDistance -= distanceInBand;
+      processedDistance += distanceInBand;
+    }
+
+    if (remainingDistance <= 0) break;
+  }
+
+  return totalCharge;
+}
+
+export function calculatePrice({
+  distance,
+  vehicleClass,
+  isAirportTransfer,
+  pickupTime,
+}: PriceCalculatorParams): number {
+  // 1. Calculate base components
+  const baseFare = BASE_FARE;
+  const airportFee = isAirportTransfer ? AIRPORT_FEE : 0;
+  const distanceCharge = calculatePerKilometerCharges(distance);
+
+  // 2. Calculate class multiplier
+  let classMultiplier = 1.0;
+  switch (vehicleClass) {
+    case 'Business':
+      classMultiplier = CLASS_MULTIPLIERS.business;
+      break;
+    case 'First':
+      classMultiplier = CLASS_MULTIPLIERS.first;
+      break;
+    case 'Van':
+      classMultiplier = calculateVanMultiplier(distance);
+      break;
+  }
+
+  // 3. Calculate peak surcharge
+  const peakSurcharge = isPeakHour(pickupTime) ? PEAK_SURCHARGE : 0;
+
+  // 4. Calculate subtotal before peak surcharge
+  const subtotal = (baseFare + airportFee + distanceCharge) * classMultiplier;
+
+  // 5. Calculate final price
+  const finalPrice = subtotal * (1 + peakSurcharge);
+
+  return Number(finalPrice.toFixed(2));
+}
+
+// Helper function to format price in GBP
+export function formatPrice(price: number): string {
+  return new Intl.NumberFormat('en-GB', {
+    style: 'currency',
+    currency: 'GBP',
+  }).format(price);
+}
+
+// Add airport detection helper
+export function isAirportLocation(
+  place: google.maps.places.PlaceResult
+): boolean {
+  return (
+    place.types?.some((type) =>
+      ['airport', 'transit_station'].includes(type)
+    ) ||
+    place.name?.toLowerCase().includes('airport') ||
+    place.formatted_address?.toLowerCase().includes('airport') ||
+    false
+  );
+}

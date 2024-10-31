@@ -16,6 +16,8 @@ import {
   Phone,
   Plane,
   MessageCircle,
+  Car,
+  PoundSterling,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { BookingState } from '@/context/booking/booking-context';
@@ -27,10 +29,13 @@ interface BookingSummaryCardProps {
 const BookingSummaryCard: React.FC<BookingSummaryCardProps> = ({
   bookingData,
 }) => {
-  const { customerDetails, initialBookingDetails, distanceData, vehicle } =
-    bookingData;
-
-  console.log(bookingData);
+  const {
+    customerDetails,
+    initialBookingDetails,
+    distanceData,
+    vehicle,
+    finalPrice,
+  } = bookingData;
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
@@ -54,156 +59,195 @@ const BookingSummaryCard: React.FC<BookingSummaryCardProps> = ({
         </CardHeader>
         <CardContent className="p-6 text-sm">
           <div className="space-y-6">
-            <div>
-              <h3 className="font-semibold text-lg mb-3">Booking Details</h3>
-              <ul className="space-y-3">
-                <li className="flex items-center justify-between">
-                  <span className="flex items-center text-gray-600">
-                    <MapPin className="w-4 h-4 mr-2" /> Pickup
-                  </span>
-                  <span className="font-medium">
-                    {initialBookingDetails?.pickupLocation || 'N/A'}
-                  </span>
-                </li>
-                {initialBookingDetails?.type === 'oneWay' && (
-                  <li className="flex items-center justify-between">
-                    <span className="flex items-center text-gray-600">
-                      <MapPin className="w-4 h-4 mr-2" /> Dropoff
-                    </span>
-                    <span className="font-medium">
-                      {initialBookingDetails.dropoffLocation || 'N/A'}
-                    </span>
-                  </li>
-                )}
-                {initialBookingDetails?.type === 'hourly' && (
-                  <li className="flex items-center justify-between">
-                    <span className="flex items-center text-gray-600">
-                      <Clock className="w-4 h-4 mr-2" /> Duration
-                    </span>
-                    <span className="font-medium">
-                      {initialBookingDetails.duration
-                        ? `${initialBookingDetails.duration} hours`
-                        : 'N/A'}
-                    </span>
-                  </li>
-                )}
-                <li className="flex items-center justify-between">
-                  <span className="flex items-center text-gray-600">
-                    <Calendar className="w-4 h-4 mr-2" /> Date
-                  </span>
-                  <span className="font-medium">
-                    {formatDate(initialBookingDetails?.date || null)}
-                  </span>
-                </li>
-                <li className="flex items-center justify-between">
-                  <span className="flex items-center text-gray-600">
-                    <Clock className="w-4 h-4 mr-2" /> Time
-                  </span>
-                  <span className="font-medium">
-                    {initialBookingDetails?.time || 'N/A'}
-                  </span>
-                </li>
-                {distanceData && (
-                  <>
-                    <li className="flex items-center justify-between">
-                      <span className="flex items-center text-gray-600">
-                        <MapPin className="w-4 h-4 mr-2" /> Distance
+            {initialBookingDetails && (
+              <div>
+                <h3 className="font-semibold text-lg mb-3">Booking Details</h3>
+                <ul className="space-y-4">
+                  {initialBookingDetails.pickupLocation && (
+                    <li className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <span className="flex items-center text-gray-600 shrink-0">
+                        <MapPin className="w-4 h-4 mr-2" /> Pickup
                       </span>
-                      <span className="font-medium">
-                        {distanceData.distance}
+                      <span className="font-medium text-right break-words max-w-[300px]">
+                        {initialBookingDetails.pickupLocation}
                       </span>
                     </li>
-                    <li className="flex items-center justify-between">
-                      <span className="flex items-center text-gray-600">
-                        <Clock className="w-4 h-4 mr-2" /> Estimated Duration
+                  )}
+                  {initialBookingDetails.type === 'oneWay' &&
+                    initialBookingDetails.dropoffLocation && (
+                      <li className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <span className="flex items-center text-gray-600 shrink-0">
+                          <MapPin className="w-4 h-4 mr-2" /> Dropoff
+                        </span>
+                        <span className="font-medium text-right break-words max-w-[300px]">
+                          {initialBookingDetails.dropoffLocation}
+                        </span>
+                      </li>
+                    )}
+                  {initialBookingDetails.type === 'hourly' &&
+                    initialBookingDetails.duration && (
+                      <li className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <span className="flex items-center text-gray-600 shrink-0">
+                          <Clock className="w-4 h-4 mr-2" /> Duration
+                        </span>
+                        <span className="font-medium text-right">
+                          {`${initialBookingDetails.duration} hours`}
+                        </span>
+                      </li>
+                    )}
+                  {initialBookingDetails.date && (
+                    <li className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <span className="flex items-center text-gray-600 shrink-0">
+                        <Calendar className="w-4 h-4 mr-2" /> Date
                       </span>
-                      <span className="font-medium">
-                        {distanceData.estimatedDuration}
+                      <span className="font-medium text-right">
+                        {formatDate(initialBookingDetails.date)}
                       </span>
                     </li>
-                  </>
-                )}
-              </ul>
-            </div>
-            {vehicle && (
+                  )}
+                  {initialBookingDetails.time && (
+                    <li className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <span className="flex items-center text-gray-600 shrink-0">
+                        <Clock className="w-4 h-4 mr-2" /> Time
+                      </span>
+                      <span className="font-medium text-right">
+                        {initialBookingDetails.time}
+                      </span>
+                    </li>
+                  )}
+                  {distanceData && (
+                    <>
+                      <li className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <span className="flex items-center text-gray-600 shrink-0">
+                          <MapPin className="w-4 h-4 mr-2" /> Distance
+                        </span>
+                        <span className="font-medium text-right">
+                          {distanceData.distance}
+                        </span>
+                      </li>
+                      <li className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <span className="flex items-center text-gray-600 shrink-0">
+                          <Clock className="w-4 h-4 mr-2" /> Estimated Duration
+                        </span>
+                        <span className="font-medium text-right">
+                          {distanceData.estimatedDuration}
+                        </span>
+                      </li>
+                    </>
+                  )}
+                </ul>
+              </div>
+            )}
+
+            {vehicle && finalPrice && (
               <>
                 <Separator />
                 <div>
                   <h3 className="font-semibold text-lg mb-3">
                     Vehicle Information
                   </h3>
-                  <p className="text-gray-600">{vehicle}</p>
+                  <ul className="space-y-4">
+                    <li className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <span className="flex items-center text-gray-600 shrink-0">
+                        <Car className="w-4 h-4 mr-2" /> Vehicle Type
+                      </span>
+                      <span className="font-medium text-right">{vehicle}</span>
+                    </li>
+                    <li className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <span className="flex items-center text-gray-600 shrink-0">
+                        <PoundSterling className="w-4 h-4 mr-2" /> Final Price
+                      </span>
+                      <span className="font-medium text-right">
+                        £{finalPrice.toFixed(2)}
+                      </span>
+                    </li>
+                  </ul>
                 </div>
               </>
             )}
-            {customerDetails && (
+
+            {customerDetails && Object.keys(customerDetails).length > 0 && (
               <>
                 <Separator />
                 <div>
                   <h3 className="font-semibold text-lg mb-3">
                     Customer Information
                   </h3>
-                  <ul className="space-y-3">
-                    <li className="flex items-center justify-between">
-                      <span className="flex items-center text-gray-600">
-                        <Users className="w-4 h-4 mr-2" /> Customer
-                      </span>
-                      <span className="font-medium">
-                        {customerDetails.firstName} {customerDetails.lastName}
-                      </span>
-                    </li>
-                    <li className="flex items-center justify-between">
-                      <span className="flex items-center text-gray-600">
-                        <MapPin className="w-4 h-4 mr-2" /> Email
-                      </span>
-                      <a
-                        href={`mailto:${customerDetails.email}`}
-                        className="font-medium text-primary hover:underline"
-                      >
-                        {customerDetails.email}
-                      </a>
-                    </li>
-                    <li className="flex items-center justify-between">
-                      <span className="flex items-center text-gray-600">
-                        <Phone className="w-4 h-4 mr-2" /> Phone Number
-                      </span>
-                      <span className="font-medium">
-                        {customerDetails.phoneNumber}
-                      </span>
-                    </li>
-                    <li className="flex items-center justify-between">
-                      <span className="flex items-center text-gray-600">
-                        <Users className="w-4 h-4 mr-2" /> Passengers
-                      </span>
-                      <span className="font-medium">
-                        {customerDetails.passengers}
-                      </span>
-                    </li>
-                    <li className="flex items-center justify-between">
-                      <span className="flex items-center text-gray-600">
-                        <Briefcase className="w-4 h-4 mr-2" /> Luggage
-                      </span>
-                      <span className="font-medium">
-                        {customerDetails.luggage}
-                      </span>
-                    </li>
-                    <li className="flex items-center justify-between">
-                      <span className="flex items-center text-gray-600">
-                        <Plane className="w-4 h-4 mr-2" /> Flight Number
-                      </span>
-                      <span className="font-medium">
-                        {customerDetails.flightNumber}
-                      </span>
-                    </li>
-                    <li className="flex items-center justify-between">
-                      <span className="flex items-center text-gray-600">
-                        <MessageCircle className="w-4 h-4 mr-2" /> Special
-                        Requests
-                      </span>
-                      <span className="font-medium">
-                        {customerDetails.specialRequests || 'N/A'}
-                      </span>
-                    </li>
+                  <ul className="space-y-4">
+                    {customerDetails.firstName && customerDetails.lastName && (
+                      <li className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <span className="flex items-center text-gray-600 shrink-0">
+                          <Users className="w-4 h-4 mr-2" /> Customer
+                        </span>
+                        <span className="font-medium text-right">
+                          {customerDetails.firstName} {customerDetails.lastName}
+                        </span>
+                      </li>
+                    )}
+                    {customerDetails.email && (
+                      <li className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <span className="flex items-center text-gray-600 shrink-0">
+                          <MapPin className="w-4 h-4 mr-2" /> Email
+                        </span>
+                        <a
+                          href={`mailto:${customerDetails.email}`}
+                          className="font-medium text-primary hover:underline"
+                        >
+                          {customerDetails.email}
+                        </a>
+                      </li>
+                    )}
+                    {customerDetails.phoneNumber && (
+                      <li className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <span className="flex items-center text-gray-600 shrink-0">
+                          <Phone className="w-4 h-4 mr-2" /> Phone Number
+                        </span>
+                        <span className="font-medium text-right">
+                          {customerDetails.phoneNumber}
+                        </span>
+                      </li>
+                    )}
+                    {customerDetails.passengers && (
+                      <li className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <span className="flex items-center text-gray-600 shrink-0">
+                          <Users className="w-4 h-4 mr-2" /> Passengers
+                        </span>
+                        <span className="font-medium text-right">
+                          {customerDetails.passengers}
+                        </span>
+                      </li>
+                    )}
+                    {customerDetails.luggage && (
+                      <li className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <span className="flex items-center text-gray-600 shrink-0">
+                          <Briefcase className="w-4 h-4 mr-2" /> Luggage
+                        </span>
+                        <span className="font-medium text-right">
+                          {customerDetails.luggage}
+                        </span>
+                      </li>
+                    )}
+                    {customerDetails.flightNumber && (
+                      <li className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <span className="flex items-center text-gray-600 shrink-0">
+                          <Plane className="w-4 h-4 mr-2" /> Flight Number
+                        </span>
+                        <span className="font-medium text-right">
+                          {customerDetails.flightNumber}
+                        </span>
+                      </li>
+                    )}
+                    {customerDetails.specialRequests && (
+                      <li className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <span className="flex items-center text-gray-600 shrink-0">
+                          <MessageCircle className="w-4 h-4 mr-2" /> Special
+                          Requests
+                        </span>
+                        <span className="font-medium text-right">
+                          {customerDetails.specialRequests}
+                        </span>
+                      </li>
+                    )}
                   </ul>
                 </div>
               </>

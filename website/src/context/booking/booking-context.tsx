@@ -1,3 +1,5 @@
+'use client';
+
 import { createContext, useContext, useReducer, ReactNode } from 'react';
 
 export interface BookingState {
@@ -10,7 +12,7 @@ export interface BookingState {
     passengers: number;
     luggage: number;
     flightNumber: string;
-    specialRequests: string | null;
+    specialRequests?: string;
   } | null;
   initialBookingDetails: {
     type: string | null;
@@ -29,6 +31,12 @@ export interface BookingState {
     status: 'pending' | 'processing' | 'completed' | 'failed' | null;
     sessionId?: string; // Stripe session ID
   };
+  priceDetails: {
+    distance: number;
+    isAirportTransfer?: boolean;
+    pickupTime: string;
+  } | null;
+  finalPrice: number;
 }
 
 type BookingAction =
@@ -41,7 +49,9 @@ type BookingAction =
   | { type: 'SET_DISTANCE_DATA'; payload: BookingState['distanceData'] }
   | { type: 'SET_BOOKING_REFERENCE'; payload: string }
   | { type: 'SET_PAYMENT_STATUS'; payload: BookingState['paymentStatus'] }
-  | { type: 'RESET_BOOKING' };
+  | { type: 'RESET_BOOKING' }
+  | { type: 'SET_PRICE_DETAILS'; payload: BookingState['priceDetails'] }
+  | { type: 'SET_FINAL_PRICE'; payload: number };
 
 const initialState: BookingState = {
   vehicle: null,
@@ -52,6 +62,8 @@ const initialState: BookingState = {
   paymentStatus: {
     status: null,
   },
+  priceDetails: null,
+  finalPrice: 0,
 };
 
 const BookingContext = createContext<
@@ -81,6 +93,10 @@ function bookingReducer(
       return { ...state, paymentStatus: action.payload };
     case 'RESET_BOOKING':
       return initialState;
+    case 'SET_PRICE_DETAILS':
+      return { ...state, priceDetails: action.payload };
+    case 'SET_FINAL_PRICE':
+      return { ...state, finalPrice: action.payload };
     default:
       return state;
   }

@@ -3,7 +3,8 @@ import '../globals.css';
 import Header from '@/sections/header/header';
 import Footer from '@/sections/footer/footer';
 import { AuthProvider as SupabaseAuthProvider } from '@/auth/context/supabase';
-import { Toaster } from "@/components/ui/toaster"
+import { Toaster } from '@/components/ui/toaster';
+import { BookingProvider } from '@/context/booking/booking-context';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -34,9 +35,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
       >
         <AuthProvider>
-          <Header />
-          <main className="flex-grow">{children}</main>
-          <Footer />
+          <BookingProvider>
+            <Header />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+          </BookingProvider>
         </AuthProvider>
         <Toaster />
       </body>

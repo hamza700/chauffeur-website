@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { motion } from 'framer-motion';
 import { parsePhoneNumber } from 'react-phone-number-input';
 import { ReloadIcon } from '@radix-ui/react-icons';
+import Link from 'next/link';
 
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -36,6 +37,7 @@ import {
 import { PhoneInput } from '@/sections/phone/phone-input';
 import { useAuthContext } from '@/auth/hooks';
 import { paths } from '@/routes/paths';
+import { useRouter } from '@/routes/hooks';
 
 const profileFormSchema = z.object({
   firstName: z.string().min(2, {
@@ -55,6 +57,7 @@ const profileFormSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export function AccountForm() {
+  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuthContext();
@@ -145,6 +148,7 @@ export function AccountForm() {
         duration: 3000,
       });
       setIsEditing(false);
+      router.refresh();
     } catch (error) {
       console.error('Failed to update customer data:', error);
       toast({
@@ -302,14 +306,11 @@ export function AccountForm() {
             <CardDescription>Manage your account password</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button
-              className="w-full"
-              onClick={() =>
-                (window.location.href = `${window.location.origin}${paths.auth.resetPassword}`)
-              }
-            >
-              <Lock className="mr-2 h-4 w-4" /> Change Password
-            </Button>
+            <Link href={paths.auth.resetPassword} className="w-full block">
+              <Button className="w-full">
+                <Lock className="mr-2 h-4 w-4" /> Change Password
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       </motion.div>

@@ -12,7 +12,6 @@ import {
   Phone,
   MapPin,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { paths } from '@/routes/paths';
 
 const socialLinks = [
@@ -40,12 +39,7 @@ const Footer: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Logo and Social Links */}
-          <motion.div
-            className="flex flex-col items-start"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
+          <div className="flex flex-col items-start">
             <Image
               src="/logo-white.png"
               alt="Chauffeur Platform Logo"
@@ -55,27 +49,21 @@ const Footer: React.FC = () => {
             />
             <div className="flex space-x-4">
               {socialLinks.map((link, index) => (
-                <motion.a
+                <a
                   key={index}
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-gray-400 hover:text-white transition-colors duration-300"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
                 >
                   {link.icon}
-                </motion.a>
+                </a>
               ))}
             </div>
-          </motion.div>
+          </div>
 
           {/* Quick Links */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-          >
+          <div>
             <h3 className="text-xl font-bold mb-6 text-white">Quick Links</h3>
             <ul className="space-y-3">
               {quickLinks.map((link, index) => (
@@ -89,14 +77,10 @@ const Footer: React.FC = () => {
                 </li>
               ))}
             </ul>
-          </motion.div>
+          </div>
 
           {/* Legal Links */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
+          <div>
             <h3 className="text-xl font-bold mb-6 text-white">Legal</h3>
             <ul className="space-y-3">
               {legalLinks.map((link, index) => (
@@ -110,14 +94,10 @@ const Footer: React.FC = () => {
                 </li>
               ))}
             </ul>
-          </motion.div>
+          </div>
 
           {/* Contact Information */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
+          <div>
             <h3 className="text-xl font-bold mb-6 text-white">Contact Us</h3>
             <ul className="space-y-4">
               <li className="flex items-center">
@@ -145,21 +125,16 @@ const Footer: React.FC = () => {
                 </span>
               </li>
             </ul>
-          </motion.div>
+          </div>
         </div>
 
         {/* Copyright */}
-        <motion.div
-          className="mt-12 pt-8 border-t border-gray-800 text-center text-gray-400"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-        >
+        <div className="mt-12 pt-8 border-t border-gray-800 text-center text-gray-400">
           <p>
             &copy; {new Date().getFullYear()} Chauffeur Platform. All rights
             reserved.
           </p>
-        </motion.div>
+        </div>
       </div>
     </footer>
   );

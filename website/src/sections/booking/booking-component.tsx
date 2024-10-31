@@ -28,13 +28,17 @@ import {
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLoadScript, Autocomplete } from '@react-google-maps/api';
-import { ReloadIcon } from "@radix-ui/react-icons"
+import { ReloadIcon } from '@radix-ui/react-icons';
+import { calculatePrice, isAirportLocation } from '@/lib/price-calculator';
+import { useBooking } from '@/context/booking/booking-context';
 
 interface Location {
   address: string;
+  displayName?: string;
   placeId: string;
   lat: number;
   lng: number;
+  isAirport?: boolean;
 }
 
 interface DistanceData {
@@ -44,6 +48,11 @@ interface DistanceData {
 
 // Define libraries outside the component to prevent recreating the array on each render
 const libraries = ['places'];
+
+// Add this helper function at the top of the file
+function isAirportPlace(place: google.maps.places.PlaceResult): boolean {
+  return place?.types?.includes('airport') || false;
+}
 
 export function BookingComponent() {
   const router = useRouter();
@@ -97,21 +106,53 @@ export function BookingComponent() {
 
   const [isSearching, setIsSearching] = useState(false);
 
+  const { dispatch } = useBooking();
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSearching(true);
-    
+
     try {
+      // Extract distance value from distanceData
+      const distanceInKm = distanceData
+        ? parseFloat(distanceData.distance.replace('km', '').trim())
+        : 0;
+
+      // Check if either pickup or dropoff is an airport using the place types
+      const pickupPlace = pickupAutocompleteRef.current?.getPlace();
+      const dropoffPlace = dropoffAutocompleteRef.current?.getPlace();
+
+      const isAirport =
+        (pickupPlace || dropoffPlace) &&
+        (isAirportPlace(pickupPlace!) || isAirportPlace(dropoffPlace!));
+
       const queryParams = new URLSearchParams({
         ...formData,
         type: activeTab,
         date: date ? date.toISOString() : '',
+        distance: distanceInKm.toString(),
+        isAirportTransfer: isAirport?.toString() || 'false',
+        pickupTime: formData.time,
         ...(distanceData && {
           distance: distanceData.distance,
           estimatedDuration: distanceData.estimatedDuration,
         }),
       }).toString();
-      
+
+      // Calculate prices for each vehicle class
+      const priceDetails = {
+        distance: distanceInKm,
+        isAirportTransfer: isAirport,
+        pickupTime: formData.time,
+      };
+
+      console.log('Setting price details:', priceDetails);
+
+      dispatch({
+        type: 'SET_PRICE_DETAILS',
+        payload: priceDetails,
+      });
+
       await router.push(`/booking?${queryParams}`);
     } catch (error) {
       console.error('Navigation error:', error);
@@ -126,8 +167,12 @@ export function BookingComponent() {
     ) => {
       const place = autocomplete.getPlace();
       if (place.geometry?.location) {
+        const displayName = place.name || '';
+        const formattedAddress = place.formatted_address || '';
+
         const newLocation: Location = {
-          address: place.formatted_address || '',
+          address: formattedAddress,
+          displayName: displayName,
           placeId: place.place_id || '',
           lat: place.geometry.location.lat(),
           lng: place.geometry.location.lng(),
@@ -137,13 +182,13 @@ export function BookingComponent() {
           setPickupLocation(newLocation);
           setFormData((prev) => ({
             ...prev,
-            pickupLocation: newLocation.address,
+            pickupLocation: `${displayName} - ${formattedAddress}`,
           }));
         } else {
           setDropoffLocation(newLocation);
           setFormData((prev) => ({
             ...prev,
-            dropoffLocation: newLocation.address,
+            dropoffLocation: `${displayName} - ${formattedAddress}`,
           }));
         }
       } else {
@@ -204,10 +249,12 @@ export function BookingComponent() {
           }
           autocomplete.setComponentRestrictions({ country: 'gb' });
           autocomplete.setFields([
+            'name',
             'address_components',
             'geometry',
             'place_id',
             'formatted_address',
+            'types',
           ]);
         }}
         onPlaceChanged={() => {
@@ -428,4 +475,3 @@ export function BookingComponent() {
   );
 }
 export default BookingComponent;
-

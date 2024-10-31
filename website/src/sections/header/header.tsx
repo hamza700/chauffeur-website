@@ -29,11 +29,9 @@ import { navItems } from './header-data';
 import { useAuthContext } from '@/auth/hooks';
 import { signOut } from '@/auth/context/supabase';
 import { paths } from '@/routes/paths';
-import { useRouter } from '@/routes/hooks';
 
 function Header() {
-  const { user, checkUserSession } = useAuthContext();
-  const router = useRouter();
+  const { user } = useAuthContext();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
@@ -58,22 +56,25 @@ function Header() {
     try {
       setIsSigningOut(true);
 
-      // Perform sign out
-      await signOut();
+      // Add a timeout to prevent infinite loading state
+      const signOutPromise = signOut();
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Sign out timeout')), 5000);
+      });
 
-      // Ensure checkUserSession exists
-      if (!checkUserSession) {
-        throw new Error('User session check not available');
-      }
+      // Race between sign out and timeout
+      await Promise.race([signOutPromise, timeoutPromise]);
 
-      // Update auth state
-      await checkUserSession();
+      // Clear any local state/storage if needed
+      window.localStorage.removeItem('supabase.auth.token');
 
-      // Force a hard navigation instead of just refresh
-      router.push(paths.home);
+      // Force a hard reload to clear all state
+      window.location.href = paths.home;
     } catch (error) {
       console.error('Sign out error:', error);
-      // Optionally add toast notification here
+      // Force sign out on error
+      window.localStorage.clear();
+      window.location.href = paths.home;
     } finally {
       setIsSigningOut(false);
     }
