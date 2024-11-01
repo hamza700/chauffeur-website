@@ -12,6 +12,8 @@ import { Car, User, CreditCard, LogIn } from 'lucide-react';
 import { useAuthContext } from '@/auth/hooks';
 import { paths } from '@/routes/paths';
 import { useBooking } from '@/context/booking/booking-context';
+import { insertBookingRecord } from '@/auth/context/supabase/action';
+import { parsePhoneNumber } from 'react-phone-number-input';
 
 const getSteps = (authenticated: boolean) => [
   { number: '01', icon: Car, label: 'Vehicle' },
@@ -54,8 +56,16 @@ export function BookingViewPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(0);
-  const { authenticated } = useAuthContext();
+  const { authenticated, user } = useAuthContext();
   const steps = getSteps(authenticated);
+
+  const {
+    vehicle,
+    initialBookingDetails,
+    finalPrice,
+    customerDetails,
+    distanceData,
+  } = state;
 
   useEffect(() => {
     const initialBookingDetails = {
@@ -91,9 +101,9 @@ export function BookingViewPage() {
       // Optionally clear the stored details
       // sessionStorage.removeItem('customerDetails');
     }
-  }, [authenticated]);
+  }, [authenticated, dispatch]);
 
-  const handleNext = (data: Partial<BookingData>) => {
+  const handleNext = async (data: Partial<BookingData>) => {
     if (data.vehicle) {
       dispatch({ type: 'SET_VEHICLE', payload: data.vehicle });
     }
@@ -103,6 +113,66 @@ export function BookingViewPage() {
     if (data.paymentDetails) {
       const bookingReference = generateBookingReference();
       dispatch({ type: 'SET_BOOKING_REFERENCE', payload: bookingReference });
+      if (
+        !bookingReference ||
+        !initialBookingDetails ||
+        !vehicle ||
+        !customerDetails ||
+        !distanceData ||
+        !finalPrice
+      ) {
+        console.error('Missing required booking data:', {
+          bookingReference,
+          initialBookingDetails,
+          vehicle,
+          customerDetails,
+          distanceData,
+          finalPrice,
+        });
+        return;
+      }
+
+      let formattedPhoneNumber = customerDetails.phoneNumber;
+      try {
+        const phoneNumber = parsePhoneNumber(customerDetails.phoneNumber);
+        if (phoneNumber) {
+          formattedPhoneNumber = phoneNumber.format('E.164');
+        }
+      } catch (e) {
+        console.warn('Could not parse phone number:', e);
+      }
+
+      console.log('Saving booking data...');
+      const bookingData = {
+        orderNumber: bookingReference,
+        date: initialBookingDetails.date,
+        time: initialBookingDetails.time,
+        pickupLocation: initialBookingDetails.pickupLocation,
+        dropoffLocation: initialBookingDetails.dropoffLocation,
+        serviceClass: vehicle,
+        totalAmount: finalPrice,
+        status: 'offers',
+        specialRequests: customerDetails.specialRequests,
+        distance: distanceData.distance,
+        customerId: user?.id,
+        passengers: customerDetails.passengers,
+        luggage: customerDetails.luggage,
+        flightNumber: customerDetails.flightNumber,
+        customerFirstName: customerDetails.firstName,
+        customerLastName: customerDetails.lastName,
+        customerEmail: customerDetails.email,
+        customerPhoneNumber: formattedPhoneNumber,
+        estimatedDuration: distanceData.estimatedDuration,
+        bookingType: initialBookingDetails.type,
+      };
+
+      try {
+        await insertBookingRecord(bookingData);
+      } catch (error) {
+        console.error('Error inserting booking record:', error);
+      }
+
+      console.log('Booking saved successfully');
       router.push(`/booking/confirmation?ref=${bookingReference}`);
       return;
     }

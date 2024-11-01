@@ -15,16 +15,16 @@ export interface BookingState {
     specialRequests?: string;
   } | null;
   initialBookingDetails: {
-    type: string | null;
-    pickupLocation: string | null;
-    dropoffLocation: string | null;
-    date: string | null;
-    time: string | null;
-    duration: string | null;
+    type: string;
+    pickupLocation: string;
+    dropoffLocation: string;
+    date: string;
+    time: string;
+    duration: string;
   } | null;
   distanceData: {
-    distance: string | null;
-    estimatedDuration: string | null;
+    distance: string;
+    estimatedDuration: string;
   } | null;
   bookingReference: string | null;
   paymentStatus: {

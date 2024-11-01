@@ -113,6 +113,8 @@ export function BookingComponent() {
     setIsSearching(true);
 
     try {
+      dispatch({ type: 'RESET_BOOKING' });
+
       // Extract distance value from distanceData
       const distanceInKm = distanceData
         ? parseFloat(distanceData.distance.replace('km', '').trim())

@@ -26,30 +26,96 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { paths } from '@/routes/paths';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  getBookingRecord,
+  deleteBookingRecord,
+} from '@/auth/context/supabase/action';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { toast } from '@/hooks/use-toast';
+import { useAuthContext } from '@/auth/hooks';
 
-// Mock data for a single booking
-const mockBookingDetails = {
-  id: 'BK123456',
-  date: '2023-06-15',
-  time: '14:00',
-  pickupLocation: 'Airport Terminal 1',
-  dropoffLocation: 'Hilton Hotel Downtown',
-  vehicleType: 'Business Class',
-  status: 'Confirmed',
-  customerName: 'John Doe',
-  customerEmail: 'john.doe@example.com',
-  customerPhone: '+1 234 567 8900',
-  price: 150.0,
-  driverName: 'Michael Smith',
-  driverPhone: '+1 987 654 3210',
-};
+function getStatusDisplay(status: string) {
+  switch (status.toLowerCase()) {
+    case 'offers':
+      return 'Not Confirmed Yet';
+    case 'confirmed':
+      return 'Confirmed';
+    case 'completed':
+      return 'Completed';
+    default:
+      return status;
+  }
+}
 
 export default function BookingDetailsView() {
   const params = useParams();
-  const bookingId = params.bookingId as string;
+  const router = useRouter();
+  const { user } = useAuthContext();
+  const [booking, setBooking] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // In a real application, you would fetch the booking details using the bookingId
-  const bookingDetails = mockBookingDetails;
+  useEffect(() => {
+    const fetchBookingDetails = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data } = await getBookingRecord(user.id);
+        const currentBooking = data?.find(
+          (b: any) => b.order_number === params.bookingId
+        );
+        setBooking(currentBooking);
+      } catch (error) {
+        console.error('Error fetching booking:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'Failed to fetch booking details',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBookingDetails();
+  }, [user?.id, params.bookingId]);
+
+  const handleCancelBooking = async () => {
+    try {
+      await deleteBookingRecord(booking.id);
+      toast({
+        title: 'Booking Cancelled',
+        description: 'Your booking has been successfully cancelled',
+      });
+      router.push(paths.manageBookings.root);
+    } catch (error) {
+      console.error('Error cancelling booking:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to cancel booking',
+      });
+    }
+  };
+
+  if (!booking) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <h1 className="text-2xl font-bold">Booking not found</h1>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-16 min-h-screen">
@@ -57,7 +123,7 @@ export default function BookingDetailsView() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-4xl mx-auto"
+        className="max-w-3xl mx-auto"
       >
         <h1 className="text-4xl font-bold mb-8 text-center text-gray-800">
           Booking Details
@@ -65,126 +131,144 @@ export default function BookingDetailsView() {
         <Card className="shadow-lg rounded-xl overflow-hidden">
           <CardHeader className="bg-primary text-white">
             <CardTitle className="text-3xl">
-              Booking {bookingDetails.id}
+              Booking {booking.order_number}
             </CardTitle>
-            <CardDescription className="text-primary-foreground">
+            <CardDescription className="text-primary-foreground text-lg">
               Status:{' '}
-              <span className="font-semibold">{bookingDetails.status}</span>
+              <span className="font-semibold">
+                {getStatusDisplay(booking.status)}
+              </span>
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-8">
+              {/* Trip Information */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
               >
-                <h3 className="text-xl font-semibold mb-4 flex items-center">
-                  <Car className="mr-2 h-6 w-6 text-primary" />
-                  Trip Information
-                </h3>
+                <h3 className="text-xl font-semibold mb-4">Trip Information</h3>
                 <ul className="space-y-3">
                   <li className="flex items-center text-gray-700">
-                    <Calendar className="mr-3 h-5 w-5 text-primary" />
-                    <span className="font-medium">Date:</span>
-                    <span className="ml-2">{bookingDetails.date}</span>
+                    <Calendar className="mr-3 h-5 w-5 text-primary flex-shrink-0" />
+                    <span className="font-medium w-20">Date:</span>
+                    <span className="ml-2">{booking.date}</span>
                   </li>
                   <li className="flex items-center text-gray-700">
-                    <Clock className="mr-3 h-5 w-5 text-primary" />
-                    <span className="font-medium">Time:</span>
-                    <span className="ml-2">{bookingDetails.time}</span>
+                    <Clock className="mr-3 h-5 w-5 text-primary flex-shrink-0" />
+                    <span className="font-medium w-20">Time:</span>
+                    <span className="ml-2">{booking.time}</span>
                   </li>
-                  <li className="flex items-center text-gray-700">
-                    <MapPin className="mr-3 h-5 w-5 text-primary" />
-                    <span className="font-medium">From:</span>
-                    <span className="ml-2">
-                      {bookingDetails.pickupLocation}
+                  <li className="flex items-start text-gray-700">
+                    <MapPin className="mr-3 h-5 w-5 text-primary flex-shrink-0 mt-1" />
+                    <span className="font-medium w-20">From:</span>
+                    <span className="ml-2 flex-1">
+                      {booking.pickup_location}
+                    </span>
+                  </li>
+                  <li className="flex items-start text-gray-700">
+                    <MapPin className="mr-3 h-5 w-5 text-primary flex-shrink-0 mt-1" />
+                    <span className="font-medium w-20">To:</span>
+                    <span className="ml-2 flex-1">
+                      {booking.dropoff_location}
                     </span>
                   </li>
                   <li className="flex items-center text-gray-700">
-                    <MapPin className="mr-3 h-5 w-5 text-primary" />
-                    <span className="font-medium">To:</span>
-                    <span className="ml-2">
-                      {bookingDetails.dropoffLocation}
-                    </span>
-                  </li>
-                  <li className="flex items-center text-gray-700">
-                    <Car className="mr-3 h-5 w-5 text-primary" />
-                    <span className="font-medium">Vehicle:</span>
-                    <span className="ml-2">{bookingDetails.vehicleType}</span>
+                    <Car className="mr-3 h-5 w-5 text-primary flex-shrink-0" />
+                    <span className="font-medium w-20">Vehicle:</span>
+                    <span className="ml-2">{booking.service_class}</span>
                   </li>
                 </ul>
               </motion.div>
+
+              <Separator />
+
+              {/* Customer Information */}
               <motion.div
-                initial={{ opacity: 0, x: 20 }}
+                initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
-                <h3 className="text-xl font-semibold mb-4 flex items-center">
-                  <User className="mr-2 h-6 w-6 text-primary" />
+                <h3 className="text-xl font-semibold mb-4">
                   Customer Information
                 </h3>
                 <ul className="space-y-3">
                   <li className="flex items-center text-gray-700">
-                    <User className="mr-3 h-5 w-5 text-primary" />
-                    <span className="font-medium">Name:</span>
-                    <span className="ml-2">{bookingDetails.customerName}</span>
+                    <User className="mr-3 h-5 w-5 text-primary flex-shrink-0" />
+                    <span className="font-medium w-20">Name:</span>
+                    <span className="ml-2">
+                      {booking.customer_first_name} {booking.customer_last_name}
+                    </span>
                   </li>
                   <li className="flex items-center text-gray-700">
-                    <Mail className="mr-3 h-5 w-5 text-primary" />
-                    <span className="font-medium">Email:</span>
-                    <span className="ml-2">{bookingDetails.customerEmail}</span>
+                    <Mail className="mr-3 h-5 w-5 text-primary flex-shrink-0" />
+                    <span className="font-medium w-20">Email:</span>
+                    <span className="ml-2">{booking.customer_email}</span>
                   </li>
                   <li className="flex items-center text-gray-700">
-                    <Phone className="mr-3 h-5 w-5 text-primary" />
-                    <span className="font-medium">Phone:</span>
-                    <span className="ml-2">{bookingDetails.customerPhone}</span>
+                    <Phone className="mr-3 h-5 w-5 text-primary flex-shrink-0" />
+                    <span className="font-medium w-20">Phone:</span>
+                    <span className="ml-2">
+                      {booking.customer_phone_number}
+                    </span>
                   </li>
                 </ul>
               </motion.div>
+
+              {/* Driver Information - Only show if status is confirmed or completed */}
+              {(booking.status.toLowerCase() === 'confirmed' ||
+                booking.status.toLowerCase() === 'completed') && (
+                <>
+                  <Separator />
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                  >
+                    <h3 className="text-xl font-semibold mb-4">
+                      Driver Information
+                    </h3>
+                    <ul className="space-y-3">
+                      <li className="flex items-center text-gray-700">
+                        <User className="mr-3 h-5 w-5 text-primary flex-shrink-0" />
+                        <span className="font-medium w-20">Name:</span>
+                        <span className="ml-2">{booking.driver_name}</span>
+                      </li>
+                      <li className="flex items-center text-gray-700">
+                        <Phone className="mr-3 h-5 w-5 text-primary flex-shrink-0" />
+                        <span className="font-medium w-20">Phone:</span>
+                        <span className="ml-2">
+                          {booking.driver_phone_number}
+                        </span>
+                      </li>
+                    </ul>
+                  </motion.div>
+                </>
+              )}
+
+              <Separator />
+
+              {/* Payment Information */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <h3 className="text-xl font-semibold mb-4">
+                  Payment Information
+                </h3>
+                <p className="flex items-center text-gray-700">
+                  <CreditCard className="mr-3 h-5 w-5 text-primary flex-shrink-0" />
+                  <span className="font-medium w-20">Total Price:</span>
+                  <span className="ml-2 text-xl font-bold text-primary">
+                    {booking.total_amount}
+                  </span>
+                </p>
+              </motion.div>
             </div>
-            <Separator className="my-8" />
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              <h3 className="text-xl font-semibold mb-4 flex items-center">
-                <User className="mr-2 h-6 w-6 text-primary" />
-                Driver Information
-              </h3>
-              <ul className="space-y-3">
-                <li className="flex items-center text-gray-700">
-                  <User className="mr-3 h-5 w-5 text-primary" />
-                  <span className="font-medium">Name:</span>
-                  <span className="ml-2">{bookingDetails.driverName}</span>
-                </li>
-                <li className="flex items-center text-gray-700">
-                  <Phone className="mr-3 h-5 w-5 text-primary" />
-                  <span className="font-medium">Phone:</span>
-                  <span className="ml-2">{bookingDetails.driverPhone}</span>
-                </li>
-              </ul>
-            </motion.div>
-            <Separator className="my-8" />
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <h3 className="text-xl font-semibold mb-4 flex items-center">
-                <CreditCard className="mr-2 h-6 w-6 text-primary" />
-                Payment Information
-              </h3>
-              <p className="flex items-center text-gray-700">
-                <CreditCard className="mr-3 h-5 w-5 text-primary" />
-                <span className="font-medium">Total Price:</span>
-                <span className="ml-2 text-xl font-bold text-primary">
-                  ${bookingDetails.price.toFixed(2)}
-                </span>
-              </p>
-            </motion.div>
           </CardContent>
+
           <CardFooter className="bg-gray-50 px-6 py-4">
             <div className="flex flex-col sm:flex-row justify-between items-center w-full space-y-4 sm:space-y-0">
               <Button variant="outline" asChild>
@@ -209,11 +293,31 @@ export default function BookingDetailsView() {
                 </Link>
               </Button>
               <div className="space-x-2">
-                {bookingDetails.status === 'Confirmed' && (
-                  <Button variant="destructive">
-                    <AlertCircle className="mr-2 h-4 w-4" />
-                    Cancel Booking
-                  </Button>
+                {(booking.status.toLowerCase() === 'offers' ||
+                  booking.status.toLowerCase() === 'confirmed') && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive">
+                        <AlertCircle className="mr-2 h-4 w-4" />
+                        Cancel Booking
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently
+                          cancel your booking.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleCancelBooking}>
+                          Confirm
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 )}
                 <Button>
                   <Phone className="mr-2 h-4 w-4" />

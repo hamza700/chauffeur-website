@@ -56,6 +56,29 @@ export type ResendOtpParams = {
   email: string;
 };
 
+interface Booking {
+  orderNumber: string;
+  date: string;
+  time: string;
+  pickupLocation: string;
+  dropoffLocation: string;
+  serviceClass: string;
+  totalAmount: number;
+  status: string;
+  specialRequests?: string;
+  distance: string;
+  estimatedDuration: string;
+  customerId: string;
+  passengers: number;
+  luggage: number;
+  flightNumber: string;
+  customerFirstName: string;
+  customerLastName: string;
+  customerEmail: string;
+  customerPhoneNumber: string;
+  bookingType: string;
+}
+
 /** **************************************
  * Sign in
  *************************************** */
@@ -352,4 +375,84 @@ export const updateCustomerRecord = async (
   }
 
   return { data: result, error };
+};
+
+/** **************************************
+ * Insert booking record
+ *************************************** */
+export const insertBookingRecord = async (
+  booking: Booking
+): Promise<{ data: any[] | null; error: PostgrestError | null }> => {
+  const { data, error } = await supabase
+    .from('bookings')
+    .insert([
+      {
+        order_number: booking.orderNumber,
+        date: booking.date,
+        time: booking.time,
+        pickup_location: booking.pickupLocation,
+        dropoff_location: booking.dropoffLocation,
+        service_class: booking.serviceClass,
+        total_amount: booking.totalAmount,
+        status: booking.status,
+        special_requests: booking.specialRequests,
+        distance: booking.distance,
+        estimated_duration: booking.estimatedDuration,
+        booking_type: booking.bookingType,
+        customer_id: booking.customerId,
+        passengers: booking.passengers,
+        luggage: booking.luggage,
+        flight_number: booking.flightNumber,
+        customer_first_name: booking.customerFirstName,
+        customer_last_name: booking.customerLastName,
+        customer_email: booking.customerEmail,
+        customer_phone_number: booking.customerPhoneNumber,
+      },
+    ])
+    .select();
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
+  return { data, error };
+};
+
+/** **************************************
+ * Get booking record
+ *************************************** */
+export const getBookingRecord = async (
+  userId: string
+): Promise<{ data: any[] | null; error: PostgrestError | null }> => {
+  const { data, error } = await supabase
+    .from('bookings')
+    .select()
+    .eq('customer_id', userId);
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
+  return { data, error };
+};
+
+/** **************************************
+ * Delete booking record
+ *************************************** */
+export const deleteBookingRecord = async (
+  bookingId: string
+): Promise<{ data: any[] | null; error: PostgrestError | null }> => {
+  const { data, error } = await supabase
+    .from('bookings')
+    .delete()
+    .eq('id', bookingId);
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
+  return { data, error };
 };

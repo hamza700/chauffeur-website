@@ -16,7 +16,7 @@ interface PaymentProps {
 }
 
 const Payment: React.FC<PaymentProps> = ({ onNext, onBack }) => {
-  const { state, dispatch } = useBooking();
+  const { dispatch } = useBooking();
   const router = useRouter();
   const { authenticated, loading } = useAuthContext();
   const {
