@@ -2,12 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Table,
   TableBody,
@@ -25,10 +20,7 @@ import {
   CheckCircle,
 } from 'lucide-react';
 import Link from 'next/link';
-import {
-  Card,
-  CardHeader,
-} from '@/components/ui/card';
+import { Card, CardHeader } from '@/components/ui/card';
 import { paths } from '@/routes/paths';
 import { getBookingRecord } from '@/auth/context/supabase/action';
 import { useAuthContext } from '@/auth/hooks';
@@ -67,7 +59,7 @@ export default function ManageBookingsView() {
   useEffect(() => {
     const fetchBookings = async () => {
       if (!user?.id) return;
-      
+
       try {
         const { data } = await getBookingRecord(user.id);
         setBookings(data || []);
@@ -153,7 +145,9 @@ function BookingsTable({ bookings, type }: BookingsTableProps) {
         <TableBody>
           {bookings.map((booking) => (
             <TableRow key={booking.id}>
-              <TableCell className="font-medium">{booking.order_number}</TableCell>
+              <TableCell className="font-medium">
+                {booking.order_number}
+              </TableCell>
               <TableCell>
                 <div className="flex items-center text-sm text-gray-600">
                   <Calendar className="mr-2 h-4 w-4 flex-shrink-0" />
@@ -169,13 +163,17 @@ function BookingsTable({ bookings, type }: BookingsTableProps) {
               <TableCell>
                 <div className="flex items-center text-sm">
                   <MapPin className="mr-2 h-4 w-4 text-primary flex-shrink-0" />
-                  <span className="line-clamp-2">{booking.pickup_location}</span>
+                  <span className="line-clamp-2">
+                    {booking.pickup_location}
+                  </span>
                 </div>
               </TableCell>
               <TableCell>
                 <div className="flex items-center text-sm">
                   <MapPin className="mr-2 h-4 w-4 text-primary flex-shrink-0" />
-                  <span className="line-clamp-2">{booking.dropoff_location}</span>
+                  <span className="line-clamp-2">
+                    {booking.dropoff_location}
+                  </span>
                 </div>
               </TableCell>
               <TableCell>{booking.service_class}</TableCell>

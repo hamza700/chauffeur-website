@@ -8,7 +8,11 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Users, Briefcase, Award, Ban, Clock, Shield } from 'lucide-react';
 import { useBooking } from '@/context/booking/booking-context';
-import { calculatePrice, formatPrice } from '@/lib/price-calculator';
+import {
+  calculateHourlyPrice,
+  calculatePrice,
+  formatPrice,
+} from '@/lib/price-calculator';
 import { useSearchParams } from '@/routes/hooks/use-search-params';
 
 interface VehicleSelectionProps {
@@ -73,14 +77,34 @@ function VehicleSelection({ onNext }: VehicleSelectionProps) {
       const distance = searchParams.get('distance');
       const isAirportTransfer = searchParams.get('isAirportTransfer');
       const pickupTime = searchParams.get('pickupTime');
+      const duration = searchParams.get('duration');
+      const type = searchParams.get('type');
 
       if (!distance || !pickupTime) return null;
+
+      if (type === 'hourly' && duration) {
+        return calculateHourlyPrice({
+          vehicleClass: vehicleClass as 'Business' | 'First' | 'Van',
+          hours: Number(duration),
+          isAirportTransfer: isAirportTransfer === 'true',
+        });
+      }
 
       return calculatePrice({
         distance: parseFloat(distance),
         vehicleClass: vehicleClass as 'Business' | 'First' | 'Van',
         isAirportTransfer: isAirportTransfer === 'true',
         pickupTime,
+      });
+    }
+
+    const type = state.initialBookingDetails?.type;
+
+    if (type === 'hourly') {
+      return calculateHourlyPrice({
+        vehicleClass: vehicleClass as 'Business' | 'First' | 'Van',
+        hours: Number(state.initialBookingDetails?.duration),
+        isAirportTransfer: state.priceDetails.isAirportTransfer ?? false,
       });
     }
 

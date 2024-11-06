@@ -29,7 +29,6 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLoadScript, Autocomplete } from '@react-google-maps/api';
 import { ReloadIcon } from '@radix-ui/react-icons';
-import { calculatePrice, isAirportLocation } from '@/lib/price-calculator';
 import { useBooking } from '@/context/booking/booking-context';
 
 interface Location {
@@ -77,7 +76,7 @@ export function BookingComponent() {
   }, [scriptLoadError]);
 
   const [date, setDate] = useState<Date>();
-  const [activeTab, setActiveTab] = useState('oneWay');
+  const [activeTab, setActiveTab] = useState('chauffeur');
   const [formData, setFormData] = useState({
     pickupLocation: '',
     dropoffLocation: '',
@@ -234,7 +233,7 @@ export function BookingComponent() {
   }, [pickupLocation, dropoffLocation]);
 
   useEffect(() => {
-    if (activeTab === 'oneWay') {
+    if (activeTab === 'chauffeur') {
       calculateDistance();
     }
   }, [pickupLocation, dropoffLocation, activeTab, calculateDistance]);
@@ -309,16 +308,16 @@ export function BookingComponent() {
       className="w-full max-w-7xl bg-white rounded-2xl shadow-2xl p-6 sm:p-8"
     >
       <Tabs
-        defaultValue="oneWay"
+        defaultValue="chauffeur"
         className="w-full"
         onValueChange={setActiveTab}
       >
         <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 p-1 rounded-lg">
           <TabsTrigger
-            value="oneWay"
+            value="chauffeur"
             className={cn(
               'rounded-md transition-all duration-300',
-              activeTab === 'oneWay'
+              activeTab === 'chauffeur'
                 ? 'bg-primary text-white shadow-lg'
                 : 'text-gray-600 hover:bg-gray-200'
             )}
@@ -353,7 +352,7 @@ export function BookingComponent() {
                 <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary" />
                 {renderAutocomplete('pickup')}
               </div>
-              {activeTab === 'oneWay' && (
+              {activeTab === 'chauffeur' && (
                 <div className="flex-1 relative">
                   <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary" />
                   {renderAutocomplete('dropoff')}

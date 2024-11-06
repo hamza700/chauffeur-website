@@ -73,7 +73,7 @@ const BookingSummaryCard: React.FC<BookingSummaryCardProps> = ({
                       </span>
                     </li>
                   )}
-                  {initialBookingDetails.type === 'oneWay' &&
+                  {initialBookingDetails.type === 'chauffeur' &&
                     initialBookingDetails.dropoffLocation && (
                       <li className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <span className="flex items-center text-gray-600 shrink-0">

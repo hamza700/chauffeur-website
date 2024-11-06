@@ -121,7 +121,7 @@ const ConfirmationPage = () => {
                   <p className="text-lg font-medium">
                     {initialBookingDetails.pickupLocation}
                   </p>
-                  {initialBookingDetails.type === 'oneWay' &&
+                  {initialBookingDetails.type === 'chauffeur' &&
                     initialBookingDetails.dropoffLocation && (
                       <div className="mt-4">
                         <div className="flex items-center space-x-2 text-gray-600 mb-1">
