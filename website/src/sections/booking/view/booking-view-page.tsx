@@ -12,8 +12,6 @@ import { Car, User, CreditCard, LogIn } from 'lucide-react';
 import { useAuthContext } from '@/auth/hooks';
 import { paths } from '@/routes/paths';
 import { useBooking } from '@/context/booking/booking-context';
-import { insertBookingRecord } from '@/auth/context/supabase/action';
-import { parsePhoneNumber } from 'react-phone-number-input';
 
 const getSteps = (authenticated: boolean) => [
   { number: '01', icon: Car, label: 'Vehicle' },
@@ -23,7 +21,7 @@ const getSteps = (authenticated: boolean) => [
 ];
 
 interface BookingData {
-  vehicle: string | null;
+  vehicle: string;
   customerDetails: {
     firstName: string;
     lastName: string;
@@ -32,22 +30,20 @@ interface BookingData {
     passengers: number;
     luggage: number;
     flightNumber: string;
-    specialRequests: string | null;
-  } | null;
+    specialRequests?: string;
+    bookingReference: string;
+  };
   initialBookingDetails: {
-    type: string | null;
-    pickupLocation: string | null;
-    dropoffLocation: string | null;
-    date: string | null;
-    time: string | null;
-    duration: string | null;
-  } | null;
+    type: string;
+    pickupLocation: string;
+    dropoffLocation?: string;
+    date: string;
+    time: string;
+    duration: string;
+  };
   distanceData: {
-    distance: string | null;
-    estimatedDuration: string | null;
-  } | null;
-  paymentDetails?: {
-    status: 'processing' | 'completed' | 'failed';
+    distance?: string;
+    estimatedDuration?: string;
   };
 }
 
@@ -56,34 +52,8 @@ export function BookingViewPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(0);
-  const { authenticated, user } = useAuthContext();
+  const { authenticated } = useAuthContext();
   const steps = getSteps(authenticated);
-
-  const {
-    vehicle,
-    initialBookingDetails,
-    finalPrice,
-    customerDetails,
-    distanceData,
-  } = state;
-
-  useEffect(() => {
-    const initialBookingDetails = {
-      type: searchParams.get('type'),
-      pickupLocation: searchParams.get('pickupLocation'),
-      dropoffLocation: searchParams.get('dropoffLocation'),
-      date: searchParams.get('date'),
-      time: searchParams.get('time'),
-      duration: searchParams.get('duration'),
-    };
-    const distanceData = {
-      distance: searchParams.get('distance'),
-      estimatedDuration: searchParams.get('estimatedDuration'),
-    };
-
-    dispatch({ type: 'SET_INITIAL_DETAILS', payload: initialBookingDetails });
-    dispatch({ type: 'SET_DISTANCE_DATA', payload: distanceData });
-  }, [searchParams, dispatch]);
 
   useEffect(() => {
     if (currentStep === 1 && !authenticated) {
@@ -92,102 +62,32 @@ export function BookingViewPage() {
     }
   }, [currentStep, authenticated]);
 
-  useEffect(() => {
-    // Restore customer details if returning from auth
-    const storedDetails = sessionStorage.getItem('customerDetails');
-    if (storedDetails && authenticated) {
-      const parsedDetails = JSON.parse(storedDetails);
-      dispatch({ type: 'SET_CUSTOMER_DETAILS', payload: parsedDetails });
-      // Optionally clear the stored details
-      // sessionStorage.removeItem('customerDetails');
-    }
-  }, [authenticated, dispatch]);
-
   const handleNext = async (data: Partial<BookingData>) => {
-    if (data.vehicle) {
+    // Handle vehicle selection first
+    if (currentStep === 0 && data.vehicle) {
       dispatch({ type: 'SET_VEHICLE', payload: data.vehicle });
-    }
-    if (data.customerDetails) {
-      dispatch({ type: 'SET_CUSTOMER_DETAILS', payload: data.customerDetails });
-    }
-    if (data.paymentDetails) {
-      const bookingReference = generateBookingReference();
-      dispatch({ type: 'SET_BOOKING_REFERENCE', payload: bookingReference });
-      if (
-        !bookingReference ||
-        !initialBookingDetails ||
-        !vehicle ||
-        !customerDetails ||
-        !distanceData ||
-        !finalPrice
-      ) {
-        console.error('Missing required booking data:', {
-          bookingReference,
-          initialBookingDetails,
-          vehicle,
-          customerDetails,
-          distanceData,
-          finalPrice,
-        });
+
+      // Check authentication after saving vehicle data
+      if (!authenticated) {
+        sessionStorage.setItem('selectedVehicle', JSON.stringify(data.vehicle));
+        const currentUrl = window.location.pathname + window.location.search;
+        sessionStorage.setItem('bookingReturnUrl', currentUrl);
+        router.push(
+          `${paths.auth.signIn}?returnTo=${encodeURIComponent(currentUrl)}`
+        );
         return;
       }
-
-      let formattedPhoneNumber = customerDetails.phoneNumber;
-      try {
-        const phoneNumber = parsePhoneNumber(customerDetails.phoneNumber);
-        if (phoneNumber) {
-          formattedPhoneNumber = phoneNumber.format('E.164');
-        }
-      } catch (e) {
-        console.warn('Could not parse phone number:', e);
-      }
-
-      console.log('Saving booking data...');
-      const bookingData = {
-        orderNumber: bookingReference,
-        date: initialBookingDetails.date,
-        time: initialBookingDetails.time,
-        pickupLocation: initialBookingDetails.pickupLocation,
-        dropoffLocation: initialBookingDetails.dropoffLocation,
-        serviceClass: vehicle,
-        totalAmount: finalPrice,
-        status: 'offers',
-        specialRequests: customerDetails.specialRequests,
-        distance: distanceData.distance,
-        customerId: user?.id,
-        passengers: customerDetails.passengers,
-        luggage: customerDetails.luggage,
-        flightNumber: customerDetails.flightNumber,
-        customerFirstName: customerDetails.firstName,
-        customerLastName: customerDetails.lastName,
-        customerEmail: customerDetails.email,
-        customerPhoneNumber: formattedPhoneNumber,
-        estimatedDuration: distanceData.estimatedDuration,
-        bookingType: initialBookingDetails.type,
-      };
-
-      try {
-        await insertBookingRecord(bookingData);
-      } catch (error) {
-        console.error('Error inserting booking record:', error);
-      }
-
-      console.log('Booking saved successfully');
-      router.push(`/booking/confirmation?ref=${bookingReference}`);
-      return;
     }
 
-    if (currentStep === 0 && !authenticated) {
-      // Store vehicle selection
-      sessionStorage.setItem('selectedVehicle', JSON.stringify(data.vehicle));
-      const currentUrl = window.location.pathname + window.location.search;
-      sessionStorage.setItem('bookingReturnUrl', currentUrl);
-      router.push(
-        `${paths.auth.signIn}?returnTo=${encodeURIComponent(currentUrl)}`
-      );
-      return;
+    // Handle customer details
+    if (currentStep === 1 && data.customerDetails) {
+      dispatch({
+        type: 'SET_CUSTOMER_DETAILS',
+        payload: data.customerDetails,
+      });
     }
 
+    // Proceed to next step
     if (currentStep < steps.length - 1) {
       setCurrentStep((prev) => prev + 1);
     }
@@ -195,10 +95,6 @@ export function BookingViewPage() {
 
   const handleBack = () => {
     setCurrentStep((prev) => prev - 1);
-  };
-
-  const generateBookingReference = () => {
-    return 'BK' + Math.random().toString(36).substr(2, 8).toUpperCase();
   };
 
   // Restore vehicle selection if returning from auth
@@ -209,7 +105,7 @@ export function BookingViewPage() {
       dispatch({ type: 'SET_VEHICLE', payload: vehicle });
       sessionStorage.removeItem('selectedVehicle');
     }
-  }, [authenticated]);
+  }, [authenticated, dispatch]);
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -288,9 +184,7 @@ export function BookingViewPage() {
                   defaultValues={state.customerDetails}
                 />
               )}
-              {currentStep === 2 && (
-                <Payment onNext={handleNext} onBack={handleBack} />
-              )}
+              {currentStep === 2 && <Payment onBack={handleBack} />}
             </motion.div>
           </AnimatePresence>
         </div>

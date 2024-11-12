@@ -15,13 +15,16 @@ export function BookingGuard({ children, requireReference = false }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isChecking, setIsChecking] = useState(true);
-  const { state, dispatch } = useBooking();
+  const { state } = useBooking();
 
   useEffect(() => {
     const checkBookingRequirements = () => {
       if (requireReference) {
         const reference = searchParams.get('ref');
-        if (!reference || !state.bookingReference) {
+        const sessionId = searchParams.get('session_id');
+
+        if (!reference || !sessionId) {
+          console.log('Redirecting: Missing required parameters');
           router.replace(paths.home);
           return;
         }

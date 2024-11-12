@@ -137,6 +137,7 @@ export function CustomerDetails({
   return (
     <Form {...form}>
       <div className="space-y-8">
+        <h2 className="text-3xl font-bold text-gray-800">Customer Details</h2>
         <div className="space-y-4">
           <FormLabel>Booking Type</FormLabel>
           <div className="flex space-x-4">

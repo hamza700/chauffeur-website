@@ -2,7 +2,10 @@ export const paths = {
   home: '/',
   booking: {
     root: '/booking',
-    confirmation: '/booking/confirmation',
+    confirmation: (ref: string, sessionId?: string) =>
+      `/booking/confirmation?ref=${ref}${
+        sessionId ? `&session_id=${sessionId}` : ''
+      }`,
   },
   faq: {
     root: '/faq',

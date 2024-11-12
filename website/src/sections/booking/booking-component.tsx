@@ -131,7 +131,6 @@ export function BookingComponent() {
         ...formData,
         type: activeTab,
         date: date ? date.toISOString() : '',
-        distance: distanceInKm.toString(),
         isAirportTransfer: isAirport?.toString() || 'false',
         pickupTime: formData.time,
         ...(distanceData && {
@@ -149,6 +148,13 @@ export function BookingComponent() {
 
       console.log('Setting price details:', priceDetails);
 
+      dispatch({
+        type: 'SET_INITIAL_DETAILS',
+        payload: { ...formData, type: activeTab },
+      });
+      if (activeTab === 'chauffeur') {
+        dispatch({ type: 'SET_DISTANCE_DATA', payload: distanceData });
+      }
       dispatch({
         type: 'SET_PRICE_DETAILS',
         payload: priceDetails,
@@ -289,6 +295,17 @@ export function BookingComponent() {
     };
   }, []);
 
+  // Update the date state handler
+  const handleDateSelect = (newDate: Date | undefined) => {
+    setDate(newDate);
+    if (newDate) {
+      setFormData((prev) => ({
+        ...prev,
+        date: newDate.toISOString(),
+      }));
+    }
+  };
+
   if (loadError) {
     return (
       <div className="text-red-500 p-4">
@@ -407,10 +424,10 @@ export function BookingComponent() {
                   <Calendar
                     mode="single"
                     selected={date}
-                    onSelect={setDate}
+                    onSelect={handleDateSelect}
                     initialFocus
                     className="rounded-lg border border-gray-200"
-                    disabled={(date) => date < new Date()} // Disable past dates
+                    disabled={(date) => date < new Date()}
                   />
                 </PopoverContent>
               </Popover>

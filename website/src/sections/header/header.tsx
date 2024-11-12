@@ -85,7 +85,7 @@ function Header() {
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link href={paths.home} className="flex items-center">
           <Image
-            src="/logo.webp"
+            src="/mishwar-white.jpeg"
             alt="Chauffeur Platform Logo"
             width={120}
             height={40}

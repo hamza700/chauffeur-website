@@ -1,6 +1,5 @@
 'use client';
 
-import React, { useEffect } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -8,12 +7,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Users, Briefcase, Award, Ban, Clock, Shield } from 'lucide-react';
 import { useBooking } from '@/context/booking/booking-context';
-import {
-  calculateHourlyPrice,
-  calculatePrice,
-  formatPrice,
-} from '@/lib/price-calculator';
-import { useSearchParams } from '@/routes/hooks/use-search-params';
+import { calculateHourlyPrice, calculatePrice } from '@/lib/price-calculator';
 
 interface VehicleSelectionProps {
   onNext: (data: { vehicle: string }) => void;
@@ -52,52 +46,15 @@ const vehicles = [
 function VehicleSelection({ onNext }: VehicleSelectionProps) {
   const { state, dispatch } = useBooking();
   const { priceDetails } = state;
-  const searchParams = useSearchParams();
 
-  useEffect(() => {
-    const distance = searchParams.get('distance');
-    const isAirportTransfer = searchParams.get('isAirportTransfer');
-    const pickupTime = searchParams.get('pickupTime');
-
-    if (distance && pickupTime) {
-      dispatch({
-        type: 'SET_PRICE_DETAILS',
-        payload: {
-          distance: parseFloat(distance),
-          isAirportTransfer: isAirportTransfer === 'true',
-          pickupTime,
-        },
-      });
-    }
-  }, [searchParams, dispatch]);
+  const formatPrice = (price: number): string => {
+    return new Intl.NumberFormat('en-GB', {
+      style: 'currency',
+      currency: 'GBP',
+    }).format(price);
+  };
 
   const calculateVehiclePrice = (vehicleClass: string) => {
-    if (!state.priceDetails) {
-      // Try to get from URL if not in state
-      const distance = searchParams.get('distance');
-      const isAirportTransfer = searchParams.get('isAirportTransfer');
-      const pickupTime = searchParams.get('pickupTime');
-      const duration = searchParams.get('duration');
-      const type = searchParams.get('type');
-
-      if (!distance || !pickupTime) return null;
-
-      if (type === 'hourly' && duration) {
-        return calculateHourlyPrice({
-          vehicleClass: vehicleClass as 'Business' | 'First' | 'Van',
-          hours: Number(duration),
-          isAirportTransfer: isAirportTransfer === 'true',
-        });
-      }
-
-      return calculatePrice({
-        distance: parseFloat(distance),
-        vehicleClass: vehicleClass as 'Business' | 'First' | 'Van',
-        isAirportTransfer: isAirportTransfer === 'true',
-        pickupTime,
-      });
-    }
-
     const type = state.initialBookingDetails?.type;
 
     if (type === 'hourly') {

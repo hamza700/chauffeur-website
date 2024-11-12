@@ -29,6 +29,8 @@
     "@radix-ui/react-tabs": "^1.1.1",
     "@radix-ui/react-toast": "^1.2.2",
     "@react-google-maps/api": "^2.20.3",
+    "@stripe/react-stripe-js": "^2.8.1",
+    "@stripe/stripe-js": "^4.9.0",
     "@supabase/supabase-js": "^2.45.6",
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
@@ -44,6 +46,7 @@
     "react-dom": "^18",
     "react-hook-form": "^7.53.1",
     "react-phone-number-input": "^3.4.9",
+    "stripe": "^17.3.1",
     "tailwind-merge": "^2.5.3",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.23.8"

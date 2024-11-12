@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   CheckCircle,
@@ -9,23 +9,37 @@ import {
   Calendar,
   Clock,
   Users,
+  AlertCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import Image from 'next/image';
 import { paths } from '@/routes/paths';
 import { useBooking } from '@/context/booking/booking-context';
 import { useAuthContext } from '@/auth/hooks';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from '@/routes/hooks';
+import { parsePhoneNumber } from 'react-phone-number-input';
 
 const ConfirmationPage = () => {
-  const { state } = useBooking();
-  const { authenticated } = useAuthContext();
+  const { state, dispatch } = useBooking();
+  const { authenticated, user } = useAuthContext();
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const bookingRef = searchParams.get('ref');
+  const sessionId = searchParams.get('session_id');
+  const [status, setStatus] = useState<
+    'success' | 'processing' | 'error' | null
+  >(null);
 
-  const { vehicle, initialBookingDetails, bookingReference } = state;
+  // Use bookingState instead of state for all the destructured values
+  const {
+    vehicle,
+    initialBookingDetails,
+    bookingReference,
+    customerDetails,
+    finalPrice,
+    distanceData,
+  } = state;
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
@@ -36,6 +50,16 @@ const ConfirmationPage = () => {
       year: 'numeric',
     });
   };
+
+  let formattedPhoneNumber = customerDetails.phoneNumber;
+  try {
+    const phoneNumber = parsePhoneNumber(customerDetails.phoneNumber);
+    if (phoneNumber) {
+      formattedPhoneNumber = phoneNumber.format('E.164');
+    }
+  } catch (e) {
+    console.warn('Could not parse phone number:', e);
+  }
 
   const getVehicleImageName = (vehicle: string | null) => {
     if (!vehicle) return 'default-vehicle';
@@ -51,13 +75,115 @@ const ConfirmationPage = () => {
     }
   };
 
-  // Verify booking reference matches
-  if (bookingRef !== bookingReference) {
+  useEffect(() => {
+    const checkSessionStatus = async () => {
+      if (!sessionId) return;
+
+      try {
+        if (!user?.accessToken) {
+          throw new Error('No access token available');
+        }
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/session-status?session_id=${sessionId}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${user.accessToken}`,
+            },
+            body: JSON.stringify({
+              order_number: bookingReference,
+              date: initialBookingDetails.date,
+              time: initialBookingDetails.time,
+              hours: initialBookingDetails.duration,
+              pickup_location: initialBookingDetails.pickupLocation,
+              dropoff_location: initialBookingDetails.dropoffLocation,
+              service_class: vehicle,
+              total_amount: finalPrice,
+              special_requests: customerDetails.specialRequests,
+              distance: distanceData.distance,
+              customer_id: user?.id,
+              passengers: customerDetails.passengers,
+              luggage: customerDetails.luggage,
+              flight_number: customerDetails.flightNumber,
+              customer_first_name: customerDetails.firstName,
+              customer_last_name: customerDetails.lastName,
+              customer_email: customerDetails.email,
+              customer_phone_number: formattedPhoneNumber,
+              estimated_duration: distanceData.estimatedDuration,
+              booking_type: initialBookingDetails.type,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch session status');
+        }
+
+        const data = await response.json();
+
+        if (data.status === 'complete') {
+          setStatus('success');
+        } else if (data.status === 'open') {
+          setStatus('processing');
+        } else {
+          setStatus('error');
+        }
+      } catch (error) {
+        console.error('Error checking session status:', error);
+        setStatus('error');
+      }
+    };
+
+    checkSessionStatus();
+  }, [sessionId, state, user?.accessToken]);
+
+  useEffect(() => {
+    if (status === 'success') {
+      const timer = setTimeout(() => {
+        dispatch({ type: 'RESET_BOOKING' });
+        router.push(paths.home);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [status, dispatch]);
+
+  if (status === 'error' || status === 'processing') {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-xl text-red-500">Invalid booking reference</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-primary/5 to-primary/10 px-4">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Card className="w-full max-w-md shadow-lg">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-2xl font-bold text-center text-primary flex items-center justify-center">
+                <AlertCircle className="mr-2 h-6 w-6 text-red-500" />
+                Payment Incomplete
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-center space-y-4">
+              <p className="text-lg text-muted-foreground">
+                We&apos;re sorry, but your payment could not be processed at this time.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Please check your payment details and try again, or contact our support team for assistance.
+              </p>
+            </CardContent>
+            <CardFooter className="flex justify-center pt-4">
+              <Link href={paths.booking.root} passHref>
+                <Button className="bg-primary hover:bg-primary/90 text-white">
+                  Return to Booking
+                </Button>
+              </Link>
+            </CardFooter>
+          </Card>
+        </motion.div>
       </div>
-    );
+    )
   }
 
   return (

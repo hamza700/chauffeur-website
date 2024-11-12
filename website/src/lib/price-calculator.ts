@@ -139,11 +139,3 @@ export function calculateHourlyPrice({
 
   return Number((basePrice + airportFee).toFixed(2));
 }
-
-// Helper function to format price in GBP
-export function formatPrice(price: number): string {
-  return new Intl.NumberFormat('en-GB', {
-    style: 'currency',
-    currency: 'GBP',
-  }).format(price);
-}
