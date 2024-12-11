@@ -26,7 +26,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { paths } from '@/routes/paths';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   getBookingRecord,
@@ -66,30 +66,44 @@ export default function BookingDetailsView() {
   const [booking, setBooking] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchBookingDetails = async () => {
-      if (!user?.id) return;
-
-      try {
-        const { data } = await getBookingRecord(user.id);
-        const currentBooking = data?.find(
-          (b: any) => b.order_number === params.bookingId
-        );
-        setBooking(currentBooking);
-      } catch (error) {
-        console.error('Error fetching booking:', error);
-        toast({
-          variant: 'destructive',
-          title: 'Error',
-          description: 'Failed to fetch booking details',
-        });
-      } finally {
-        setIsLoading(false);
+  const fetchBookingDetails = useCallback(async (retryCount = 0) => {
+    if (!user?.id) {
+      if (retryCount < 3) {
+        setTimeout(() => fetchBookingDetails(retryCount + 1), 1000);
+        return;
       }
-    };
+      setIsLoading(false);
+      return;
+    }
 
-    fetchBookingDetails();
+    try {
+      const { data } = await getBookingRecord(user.id);
+      const currentBooking = data?.find(
+        (b: any) => b.order_number === params.bookingId
+      );
+      setBooking(currentBooking);
+    } catch (error) {
+      console.error('Error fetching booking:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to fetch booking details',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }, [user?.id, params.bookingId]);
+
+  useEffect(() => {
+    fetchBookingDetails();
+    
+    // Optional: Set up periodic refresh
+    const refreshInterval = setInterval(() => {
+      fetchBookingDetails();
+    }, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(refreshInterval);
+  }, [fetchBookingDetails]);
 
   const handleCancelBooking = async () => {
     try {
@@ -262,7 +276,7 @@ export default function BookingDetailsView() {
                   <CreditCard className="mr-3 h-5 w-5 text-primary flex-shrink-0" />
                   <span className="font-medium w-20">Total Price:</span>
                   <span className="ml-2 text-xl font-bold text-primary">
-                    {booking.total_amount}
+                    £{booking.total_amount}
                   </span>
                 </p>
               </motion.div>

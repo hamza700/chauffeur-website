@@ -26,6 +26,16 @@ interface BookingSummaryCardProps {
   bookingData: BookingState;
 }
 
+function hasValidCustomerDetails(
+  customerDetails: BookingState['customerDetails']
+) {
+  if (!customerDetails) return false;
+
+  return Object.values(customerDetails).some(
+    (value) => value !== null && value !== undefined && value !== ''
+  );
+}
+
 const BookingSummaryCard: React.FC<BookingSummaryCardProps> = ({
   bookingData,
 }) => {
@@ -166,7 +176,7 @@ const BookingSummaryCard: React.FC<BookingSummaryCardProps> = ({
               </>
             )}
 
-            {customerDetails && Object.keys(customerDetails).length > 0 && (
+            {customerDetails && hasValidCustomerDetails(customerDetails) && (
               <>
                 <Separator />
                 <div>

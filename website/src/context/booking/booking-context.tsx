@@ -9,8 +9,8 @@ export interface BookingState {
     lastName: string;
     email: string;
     phoneNumber: string;
-    passengers: number;
-    luggage: number;
+    passengers: number | null;
+    luggage: number | null;
     flightNumber: string;
     specialRequests?: string;
   };
@@ -55,8 +55,8 @@ const initialState: BookingState = {
     lastName: '',
     email: '',
     phoneNumber: '',
-    passengers: 0,
-    luggage: 0,
+    passengers: null,
+    luggage: null,
     flightNumber: '',
   },
   initialBookingDetails: {

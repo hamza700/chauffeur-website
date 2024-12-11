@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -66,49 +66,62 @@ export function AccountForm() {
     mode: 'onChange',
   });
 
-  useEffect(() => {
-    async function fetchCustomerData() {
-      if (!user?.id) return;
-
-      try {
-        const { data, error } = await getCustomerRecord(user.id);
-        if (error) throw error;
-
-        if (data?.[0]) {
-          // Format the phone number to E.164 format
-          let formattedPhoneNumber = data[0].phone_number;
-          try {
-            // Try to parse and format the phone number
-            const phoneNumber = parsePhoneNumber(data[0].phone_number);
-            if (phoneNumber) {
-              formattedPhoneNumber = phoneNumber.format('E.164');
-            }
-          } catch (e) {
-            console.warn('Could not parse phone number:', e);
-          }
-
-          const customerData = {
-            firstName: data[0].first_name,
-            lastName: data[0].last_name,
-            phoneNumber: formattedPhoneNumber,
-            email: data[0].email,
-          };
-
-          // Reset form with fetched data
-          form.reset(customerData);
-        }
-      } catch (error) {
-        console.error('Failed to fetch customer data:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to load your profile information.',
-          variant: 'destructive',
-        });
+  const fetchCustomerData = useCallback(async (retryCount = 0) => {
+    if (!user?.id) {
+      if (retryCount < 3) {
+        setTimeout(() => fetchCustomerData(retryCount + 1), 1000);
+        return;
       }
+      return;
     }
 
-    fetchCustomerData();
+    try {
+      const { data, error } = await getCustomerRecord(user.id);
+      if (error) throw error;
+
+      if (data?.[0]) {
+        // Format the phone number to E.164 format
+        let formattedPhoneNumber = data[0].phone_number;
+        try {
+          // Try to parse and format the phone number
+          const phoneNumber = parsePhoneNumber(data[0].phone_number);
+          if (phoneNumber) {
+            formattedPhoneNumber = phoneNumber.format('E.164');
+          }
+        } catch (e) {
+          console.warn('Could not parse phone number:', e);
+        }
+
+        const customerData = {
+          firstName: data[0].first_name,
+          lastName: data[0].last_name,
+          phoneNumber: formattedPhoneNumber,
+          email: data[0].email,
+        };
+
+        // Reset form with fetched data
+        form.reset(customerData);
+      }
+    } catch (error) {
+      console.error('Failed to fetch customer data:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load your profile information.',
+        variant: 'destructive',
+      });
+    }
   }, [user?.id, form]);
+
+  useEffect(() => {
+    fetchCustomerData();
+    
+    // Optional: Set up periodic refresh
+    const refreshInterval = setInterval(() => {
+      fetchCustomerData();
+    }, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(refreshInterval);
+  }, [fetchCustomerData]);
 
   async function onSubmit(data: ProfileFormValues) {
     if (!user?.id) return;

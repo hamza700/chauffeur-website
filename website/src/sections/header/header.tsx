@@ -151,7 +151,7 @@ function Header() {
                       }
                       alt={user.user_metadata?.display_name || 'User'}
                     />
-                    <AvatarFallback>
+                    <AvatarFallback className="text-black">
                       {user.user_metadata?.display_name?.[0] || 'U'}
                     </AvatarFallback>
                   </Avatar>

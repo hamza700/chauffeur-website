@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { parsePhoneNumber } from 'libphonenumber-js';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -61,6 +62,16 @@ export function CustomerDetails({
   const [bookingType, setBookingType] = useState<'self' | 'other'>('self');
   const { dispatch } = useBooking();
 
+  const formatPhoneNumberToE164 = (phoneNumber: string) => {
+    try {
+      const parsedNumber = parsePhoneNumber(phoneNumber);
+      return parsedNumber ? parsedNumber.format('E.164') : phoneNumber;
+    } catch (e) {
+      console.warn('Could not parse phone number:', e);
+      return phoneNumber;
+    }
+  };
+
   const form = useForm<CustomerDetailsFormValues>({
     resolver: zodResolver(customerDetailsSchema),
     defaultValues: {
@@ -84,7 +95,9 @@ export function CustomerDetails({
         firstName: user.user_metadata.first_name || '',
         lastName: user.user_metadata.last_name || '',
         email: user.email || '',
-        phoneNumber: user.user_metadata.phone_number || '',
+        phoneNumber: formatPhoneNumberToE164(
+          user.user_metadata.phone_number || ''
+        ),
         passengers: defaultValues?.passengers,
         luggage: defaultValues?.luggage,
         flightNumber: defaultValues?.flightNumber || '',
@@ -111,7 +124,9 @@ export function CustomerDetails({
         firstName: user.user_metadata.first_name || '',
         lastName: user.user_metadata.last_name || '',
         email: user.email || '',
-        phoneNumber: user.user_metadata.phone_number || '',
+        phoneNumber: formatPhoneNumberToE164(
+          user.user_metadata.phone_number || ''
+        ),
         passengers: defaultValues?.passengers,
         luggage: defaultValues?.luggage,
         flightNumber: defaultValues?.flightNumber || '',

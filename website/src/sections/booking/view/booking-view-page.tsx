@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSearchParams } from 'next/navigation';
+import { useRouter } from '@/routes/hooks';
 import { motion, AnimatePresence } from 'framer-motion';
 import VehicleSelection from '@/sections/booking/vehicle-selection';
 import CustomerDetails from '@/sections/booking/customer-details';
@@ -50,7 +49,6 @@ interface BookingData {
 export function BookingViewPage() {
   const { state, dispatch } = useBooking();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(0);
   const { authenticated } = useAuthContext();
   const steps = getSteps(authenticated);

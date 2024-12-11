@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -35,6 +35,7 @@ interface Booking {
   dropoff_location: string;
   service_class: string;
   status: string;
+  customer_id: string;
 }
 
 function getStatusDisplay(status: string) {
@@ -56,28 +57,50 @@ export default function ManageBookingsView() {
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuthContext();
 
-  useEffect(() => {
-    const fetchBookings = async () => {
-      if (!user?.id) return;
-
-      try {
-        const { data } = await getBookingRecord(user.id);
-        setBookings(data || []);
-      } catch (error) {
-        console.error('Error fetching bookings:', error);
-      } finally {
-        setIsLoading(false);
+  // Wrap fetchBookings in useCallback
+  const fetchBookings = useCallback(async (retryCount = 0) => {
+    if (!user?.id) {
+      if (retryCount < 3) {
+        setTimeout(() => fetchBookings(retryCount + 1), 1000);
+        return;
       }
-    };
+      setIsLoading(false);
+      return;
+    }
 
+    try {
+      const { data } = await getBookingRecord(user.id);
+      const transformedData = (data || []).map(record => ({
+        ...record,
+        status: 'status' in record ? record.status : 'offers'
+      }));
+      setBookings(transformedData);
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user?.id]); // Add user?.id as dependency
+
+  useEffect(() => {
     fetchBookings();
-  }, [user?.id]);
+    
+    const refreshInterval = setInterval(() => {
+      fetchBookings();
+    }, 30000);
 
-  const filteredBookings = bookings.filter((booking) =>
-    activeTab === 'upcoming'
-      ? ['offers', 'confirmed'].includes(booking.status.toLowerCase())
-      : booking.status.toLowerCase() === 'completed'
-  );
+    return () => clearInterval(refreshInterval);
+  }, [fetchBookings]); // Now we only depend on fetchBookings
+
+  const filteredBookings = bookings.filter((booking) => {
+    if (activeTab === 'upcoming') {
+      // Show both available jobs (offers) and confirmed bookings
+      return ['offers', 'confirmed'].includes(booking.status.toLowerCase());
+    } else {
+      // Show only completed bookings
+      return booking.status.toLowerCase() === 'completed';
+    }
+  });
 
   return (
     <div className="container mx-auto px-4 py-16 min-h-screen">
@@ -181,10 +204,10 @@ function BookingsTable({ bookings, type }: BookingsTableProps) {
                 <span
                   className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                     booking.status.toLowerCase() === 'confirmed'
-                      ? 'bg-green-100 text-green-800'
+                      ? 'bg-gray-100 text-gray-800'
                       : booking.status.toLowerCase() === 'offers'
                       ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-gray-100 text-gray-800'
+                      : 'bg-green-100 text-green-800'
                   }`}
                 >
                   {booking.status.toLowerCase() === 'confirmed' ? (

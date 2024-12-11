@@ -425,17 +425,30 @@ export const insertBookingRecord = async (
 export const getBookingRecord = async (
   userId: string
 ): Promise<{ data: any[] | null; error: PostgrestError | null }> => {
-  const { data, error } = await supabase
+  const { data: availableJobs, error: availableJobsError } = await supabase
+    .from('available_jobs')
+    .select()
+    .eq('customer_id', userId);
+
+  const { data: bookings, error: bookingsError } = await supabase
     .from('bookings')
     .select()
     .eq('customer_id', userId);
 
+  const error = availableJobsError || bookingsError;
   if (error) {
     console.error(error);
     throw error;
   }
 
-  return { data, error };
+  // Transform available jobs to include a virtual status
+  const transformedAvailableJobs = (availableJobs || []).map(job => ({
+    ...job,
+    status: 'offers' as const
+  }));
+
+  const data = [...transformedAvailableJobs, ...(bookings || [])];
+  return { data, error: null };
 };
 
 /** **************************************
